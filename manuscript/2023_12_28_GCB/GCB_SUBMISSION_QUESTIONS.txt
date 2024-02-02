@@ -1,0 +1,27 @@
+GCB - SUBMISSION QUESTIONS
+
+1. What is the scientific question you are addressing?
+
+How is tetrapod species relatedness geographically distributed and what evolutionary or ecological processes underlie this global pattern?
+Species relatedness is measured as residual phylogenetic diversity (residual PD): the residuals of the regression between phylogenetic diversity and species richness. 
+
+2. What is/are the key finding(s) that answers this question?
+
+- Geographic patterns of species relatedness are heterogeneous across tetrapod clades, with some regions showing disparate patterns and others matching patterns for all clades (e.g., species in South America are more closely related than expected by species richness, while Africa harbors species more distantly related than expected). 
+
+- Recent speciation rates show correlation with patterns of species relatedness. 
+
+- The age of the lineages do not explain patterns of species relatedness.
+
+- Climatic factors (temperature and precipitation) have a different effect on the species relatedness between endotherms and ectotherms: areas of high and low residual PD are climatically segregated for endotherms (birds and mammals) but not for ectotherms (amphibians and squamates). 
+
+3. Why is this work important and timely?
+
+This is the first study, to our knowledge, reporting and comparing global patterns of species relatedness for the major clades of tetrapods. Furthermore, the evolutionary perspective that we adopted  enables a comprehensive exploration of the processes that have shaped diversity patterns, revealing that recent speciation has had an important role in the distribution of species relatedness, but that other factors must also be invoked to interpret this geographic pattern. 
+Therefore, our study has the potential to serve as the basis of subsequent research on the role of the different generative processes (speciation, extinction, and dispersal) in shaping current diversity patterns of vertebrates, and as a reference to investigate similar questions in other branches of the tree of life and at different taxonomic and geographic scales. 
+Importantly, the implications of our study reach the field of conservation biology, given the critical need of considering phylogenetic diversity for the proper delineation of conservation strategies (e.g., it is important to conserve the evolutionary history represented in regions of high phylogenetic diversity, but it is also essential to pay attention to regions ongoing speciation today, reflected in low phylogenetic diversity). 
+
+4. Does your paper fall within the scope of GCB; what biological AND global change aspects does it address?
+
+
+5. What are the three most recently published papers that are relevant to this question? This information will assist the Editors in selecting reviewers

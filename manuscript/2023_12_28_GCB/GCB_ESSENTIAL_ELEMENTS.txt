@@ -1,0 +1,14 @@
+GCB - ESSENTIAL ELEMENTS
+
+
+Title
+Running Title: A short running title of less than 45 characters including spaces
+List of Authors: The full names of the authors. As part of the journal’s commitment to supporting authors at every step of the publishing process, the journal requires the submitting author (only) to provide an ORCID iD when submitting a manuscript. This takes around 2 minutes to complete. Find more information here.
+Institutional affiliations: All author's institutional affiliations where the work was conducted, with a footnote for the author’s present address if different from where the work was conducted; where authors have different addresses, use numbered superscripts to refer to each address provided.
+Contact Information Corresponding author’s telephone, and email details
+Abstract: Limited to 300 words. 
+Keywords: 6-10 keywords
+
+
+
+Lines should be double spaced and also be numbered
