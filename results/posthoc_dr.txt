@@ -1,0 +1,53 @@
+[1] "AMPHIBIANS"
+
+	Pairwise comparisons using t tests with non-pooled SD 
+
+data:  dr_cramus_data[[t]]$dr_values and dr_cramus_data[[t]]$region_cramus 
+
+                     cradle_australia_oceania cradle_oriental cradle_south_america
+cradle_oriental      1                        -               -                   
+cradle_south_america 1                        1               -                   
+museum_africa        1.0e-06                  3.8e-09         < 2e-16             
+
+P value adjustment method: holm 
+[1] "##################################"
+[1] "BIRDS"
+
+	Pairwise comparisons using t tests with non-pooled SD 
+
+data:  dr_cramus_data[[t]]$dr_values and dr_cramus_data[[t]]$region_cramus 
+
+                              cradle_north_america cradle_south_america museum_africa_madagascar
+cradle_south_america          0.40608              -                    -                       
+museum_africa_madagascar      0.00013              1.3e-08              -                       
+museum_australia_oceania_asia 2.7e-06              3.7e-13              0.14970                 
+
+P value adjustment method: holm 
+[1] "##################################"
+[1] "MAMMALS"
+
+	Pairwise comparisons using t tests with non-pooled SD 
+
+data:  dr_cramus_data[[t]]$dr_values and dr_cramus_data[[t]]$region_cramus 
+
+                     cradle_north_america cradle_south_america museum_africa
+cradle_south_america 0.9785               -                    -            
+museum_africa        0.8315               0.0068               -            
+museum_north_america 0.0711               3e-06                0.0392       
+
+P value adjustment method: holm 
+[1] "##################################"
+[1] "SQUAMATES"
+
+	Pairwise comparisons using t tests with non-pooled SD 
+
+data:  dr_cramus_data[[t]]$dr_values and dr_cramus_data[[t]]$region_cramus 
+
+                      cradle_australia cradle_north_america cradle_south_america museum_south_africa
+cradle_north_america  1                -                    -                    -                  
+cradle_south_america  1                1                    -                    -                  
+museum_south_africa   1.0e-07          < 2e-16              < 2e-16              -                  
+museum_southeast_asia 1                3.3e-10              < 2e-16              1                  
+
+P value adjustment method: holm 
+[1] "##################################"
