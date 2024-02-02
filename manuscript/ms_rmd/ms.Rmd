@@ -1,0 +1,148 @@
+---
+title: "The role of present-day speciation in modern dynamics of vertebrate diversity"
+author: ""
+
+output:
+  pdf_document:
+    fig_caption: yes
+    number_sections: no
+    keep_tex: true
+    pandoc_args:
+
+csl: PRS-B.csl
+bibliography: refs/cramus_refs.bib
+
+header-includes:
+    - \usepackage{setspace}\doublespacing
+    - \usepackage{lineno}\linenumbers
+    - \usepackage[utf8]{inputenc}
+    - \usepackage[T1]{fontenc}
+    - \usepackage{biblatex}
+fontsize: 11pt
+---
+
+```{r setup, include=FALSE}
+  library(knitr)
+  library(kableExtra)
+  library(tidyverse)
+  library(geomorph)
+  library(phytools)
+  library(geiger)
+  library(RRPP)
+  knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+*Alternative title*: Present-day speciation rates do not generate modern terrestrial vertebrate cradles and museums  
+*Alternative title*: Present-day speciation rates do not generate modern dynamics of terrestrial vertebrate diversity  
+*Alternative title*: Recent tetrapod cradles are not the result of present-day speciation
+
+\begin{center}
+\textbf{H{\'{e}}ctor Tejero-Cicu{\'{e}}ndez$^{1,*}$,  Iris Men{\'{e}}ndez$^{2}$, and Jiří Šmíd$^{3}$}
+\end{center}
+
+\begin{center}`r format(Sys.time(), '%d %B, %Y')`\end{center}
+
+$^{1}$Evolution and Conservation Biology research Group, Department of Biodiversity, Ecology and Evolution. Faculty of Biology. Universidad Complutense de Madrid, 28040, Madrid, Spain
+
+$^{2}$Museum für Naturkunde, Leibniz Institute for Evolution and Biodiversity Science, Berlin, Germany
+
+$^{3}$Charles University, Prague, Czech Republic
+
+$^{*}$Correspondence: Héctor Tejero-Cicuéndez cicuendez93@gmail.com
+
+\newpage
+
+# Abstract
+
+Evolutionary and ecological dynamics differ across regions of Earth and across clades of tree of life. 
+
+\newpage
+
+# 1. Introduction
+
+The evolutionary and ecological processes underlying global patterns of biodiversity have always been a central subject of study for evolutionary biologists. Much of today's discussion about the geography of biodiversity dynamics stems from theoretical and conceptual developments on the characterization of regional conditions leading to different ways of diversity assembly. The terms 'cradle' and 'museum' to refer to regions of high instability, heterogeneity and species turnover (cradles) and regions of long-lasting environmental stability and taxonomic diversity (museums) have been very popular in the macroecology literature since Stebbins [-@Stebbins1974] proposed this metaphor. Even though the dichotomous interpretation of these terms has resulted in an inappropriate simplification or directly in a wrong use [@Vasconcelos2022], it is still important to identify the geographically uneven distribution of diversity dynamics to search for their ultimate historical, ecological, and evolutionary drivers. \hfill\break
+
+The modern use of the terms museum and cradle and their original meaning [@Vasconcelos2022]. \hfill\break
+
+Whether these particular words are used or not, there are regions that show clearly distinct diversity patterns in terms of number of species (species richness) and how closely related those species are (phylogenetic diversity). Although the geographic patterns of species richness and phylogenetic diversity are ever more well-characterized, the role of different factors in generating such patterns is not clear in most cases. Diversification rates are one of the most frequently invoked factors when characterizing biodiversity patterns, but their effect remains ambiguous in the context of global patterns of vertebrate diversity.  \hfill\break
+
+
+
+In this study, BLABLABLA...
+
+
+# 2. Materials and Methods
+
+
+
+# 3. Results
+
+
+
+# 4. Discussion
+
+The fact that the places with high speciation rates at present are not the places with more closely related diversity relative to their species richness might indicate that historical diversification trends are driving geographical patterns of global diversity.
+
+
+
+\newpage
+
+# References {-}
+
+ \setlength{\parindent}{-0.25in}
+ \setlength{\leftskip}{0.25in}
+ \setlength{\parskip}{8pt}
+ \noindent
+
+<div id="refs"></div>
+
+\newpage
+
+\hfill\break
+
+**Acknowledgments**: 
+
+**Funding Statement**: This work was funded in part by BLABLABLA to JŠ. IM was funded by the Alexander von Humboldt Foundation through a Humboldt Research Fellowship. HT-C is supported by a "Juan de la Cierva - Formación" postdoctoral fellowship (FJC2021-046832-I) funded by MCIN/AEI/10.13039/501100011033 and by the European Union NextGenerationEU/PRTR.
+
+**Data availability statement**: All the data used in this study are available elsewhere and cited accordingly throughout the manuscript. The scripts for implementing all analyses and generating the figures in this manuscript can be found in the Supplementary Material and in a GitHub repository (and on DRYAD upon acceptance).
+
+**Competing interests**: The authors declare no competing interests.
+
+\newpage
+
+# Figures
+
+Figure 1. Conceptual representation of the expected relationship between speciation rates and phylogenetic diversity (PD) relative to species richness.
+
+Figure 2. Relationship between DR rates and the residuals resulting from a regression of `PD ~ Richness` for all four groups of terrestrial vertebrates. 
+
+Figure 3. Geographic distribution of cradles and museums for terrestrial vertebrates. Silhouettes extracted from 'phylopic' (www.phylopic.org).
+
+\newpage
+
+```{r, fig.align="center", echo=FALSE, out.width="100%", fig.cap= "Conceptual representation of the expected relationship between speciation rates and phylogenetic diversity (PD) relative to species richness."}
+
+include_graphics("figures/Fig1.png")
+```
+
+\newpage
+
+```{r, fig.align="center", echo=FALSE, out.width="100%", fig.cap= "Relationship between DR rates and the residuals resulting from a regression of `PD ~ Richness` for all four groups of terrestrial vertebrates. "}
+
+include_graphics("figures/Fig2.png")
+```
+
+\newpage
+
+
+```{r, fig.align="center", echo=FALSE, out.width="100%", fig.cap= "Geographic distribution of cradles and museums for terrestrial vertebrates. Silhouettes extracted from 'phylopic' (www.phylopic.org)."}
+
+include_graphics("figures/Fig3.png")
+```
+
+\newpage
+
+
+
+
+
