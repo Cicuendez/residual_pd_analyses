@@ -1,0 +1,10 @@
+[1] "Starting! On date and time:"
+[1] "2022-06-09 18:12:26 CEST"
+[1] "Let's go!"
+[1] "distribution file loaded"
+[1] "EPM object saved"
+[1] "Finishing! On date and time:"
+[1] "2022-06-10 00:07:35 CEST"
+[1] "---------"
+[1] "Total time running:"
+Time difference of 5.91902 hours

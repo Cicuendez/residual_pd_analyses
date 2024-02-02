@@ -1,0 +1,4 @@
+[1] "Starting! On date and time:"
+[1] "2022-11-03 18:02:46 CET"
+[1] "Let's go!"
+[1] "/Volumes/GoogleDrive/.shortcut-targets-by-id/1UUotV2ZfjWpi2pbuYPKkz5zwS_tRU-IO/Hector_Jiri_PROJECTS/richness-pd-rates/richness_pd_dr"
