@@ -1,0 +1,5 @@
+Clade;Estimate;R.squared;p.value
+amphibians;-2.09E-05;0.005;1.71E-16
+birds;-7.24E-05;0.047;6.82E-209
+mammals;-0.000167641;0.076;9.96E-274
+squamates;-5.74E-05;0.125;0
