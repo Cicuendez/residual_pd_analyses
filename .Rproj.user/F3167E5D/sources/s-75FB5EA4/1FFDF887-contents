@@ -1,0 +1,117 @@
+
+
+
+
+tree_list[[t]]$edge.length
+tree_list[[t]]$edge[tree_list[[t]]$edge[, 2] %in% 1:Ntip(tree_list[[t]]),]
+tree_list[[t]]$edge.length[which(tree_list[[t]]$edge[, 2] %in% 1:Ntip(tree_list[[t]]))]
+df_blenght <- data.frame(sp= tree_list[[t]]$tip.label, blenght= tree_list[[t]]$edge.length[which(tree_list[[t]]$edge[, 2] %in% 1:Ntip(tree_list[[t]]))])
+
+blenght_x <- df_blenght[df_blenght$sp %in% cradle_northamerica_species,]
+res(lm(blenght_x$blenght ~ df_blenght$blenght))
+
+hist(tree_list[[t]]$edge.length[which(tree_list[[t]]$edge[, 2] %in% 1:Ntip(tree_list[[t]]))])
+
+t <- "birds"
+t <- "mammals"
+
+
+1:Ntip(tree_list[[t]])
+tree_list[[t]]$tip.label
+
+phytools::nodeHeights(tree_list[[t]])
+?nodeHeights
+
+ape::node.height(phy = tree_list[[t]])
+
+# BRANCH LENGTHS ----
+# Get species branch lengths ----
+for (t in taxa){
+  df_blength <- data.frame(sp = tree_list[[t]]$tip.label, 
+                           blength = tree_list[[t]]$edge.length[which(tree_list[[t]]$edge[, 2] %in% 
+                                                                        1:Ntip(tree_list[[t]]))])
+  anova_all_data[[t]] <- anova_all_data[[t]] %>% 
+    left_join(df_blength)
+  
+  dr_cramus_data[[t]] <- dr_cramus_data[[t]] %>% 
+    left_join(df_blength)
+}
+
+# cradles vs museums ----
+
+aovrrpp_blength_list <- vector('list', length(taxa))
+names(aovrrpp_blength_list) <- taxa
+
+summary_blength_list <- vector('list', length(taxa))
+names(summary_blength_list) <- taxa
+
+for (t in taxa){
+  print(t)
+  aovrrpp_blength_list[[t]] <- RRPP::lm.rrpp(f1 = blength ~ cramus, 
+                                         data = anova_all_data[[t]],
+                                         iter = 999, 
+                                         RRPP = TRUE,
+                                         print.progress = TRUE)
+  summary_blength_list[[t]] <- summary(aovrrpp_blength_list[[t]])
+  print(paste0('p-value ', t, ' = ', summary_blength_list[[t]]$table$`Pr(>F)`))
+  print(paste0('Z ', t, ' = ', summary_blength_list[[t]]$table$`Z (from F)`))
+  print('##################################')
+}
+
+
+
+for (t in taxa){
+  summary_blength_list[[t]] <- summary(aovrrpp_blength_list[[t]])
+  print(paste0('p-value ', t, ' = ', summary_blength_list[[t]]$table$`Pr(>F)`))
+  print(paste0('Z ', t, ' = ', summary_blength_list[[t]]$table$`Z (from F)`))
+}
+
+
+blength_plots <- vector('list', length(taxa))
+names(blength_plots) <- taxa
+
+for (t in taxa){
+  blength_plots[[t]] <- ggplot(data = anova_all_data[[t]], aes(x = cramus, y = log(blength))) +
+    geom_violin(aes(fill = cramus)) +
+    scale_fill_manual(values = c(cradle = col_crad, museum = col_mus)) +
+    stat_summary(geom = 'pointrange', fun = 'median', na.rm = TRUE, 
+                 color = 'black', fill = 'white', pch = 21) +
+    labs(title = t) +
+    theme_classic() +
+    theme(legend.position = 'none', 
+          plot.title = element_text(face = 'bold', hjust = 0.5, size = 10), 
+          plot.subtitle = element_text(face = 'plain', hjust = 0.5, size = 8))
+}
+wrap_plots(blength_plots)
+
+for (t in taxa){
+  print(anova_all_data[[t]] %>% 
+    summarize(.by = cramus, 
+              median_blength = median(blength), 
+              mean_blength = mean(blength)))
+}
+
+
+# Individual cradles and museums ----
+
+blength_ind_plots <- vector('list', length(taxa))
+names(blength_ind_plots) <- taxa
+
+for (t in taxa){
+  blength_ind_plots[[t]] <- ggplot(dr_cramus_data[[t]], 
+                                 aes(x = region_cramus, y = log(blength))) +
+    geom_violin(aes(fill = cramus), col = 'black') +
+    scale_fill_manual(values = c(cradle = col_crad, museum = col_mus)) +
+    stat_summary(geom = 'pointrange', fun = 'median', na.rm = TRUE, 
+                 color = 'black', fill = 'white', pch = 21) +
+    labs(title = t, x = '', y = 'blength') +
+    theme_classic() +
+    theme(legend.position = 'none', 
+          plot.title = element_text(face = 'bold', hjust = 0.5, size = 10), 
+          plot.subtitle = element_text(face = 'plain', hjust = 0.5, size = 8))
+  
+}
+wrap_plots(blength_ind_plots)
+
+
+
