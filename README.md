@@ -1,7 +1,5 @@
 # Data from: Geographic patterns of living tetrapod diversity reveal the signature of global diversification dynamics
 
-<https://doi.org/10.5061/dryad.8931zcrxh>
-
 ## Code/Software
 
 This dataset contains the scripts (R code) used to perform the analyses and generate the figures in the manuscript. All the data used are published somewhere else and properly referenced in the text.
