@@ -9,7 +9,7 @@
 # packages ----
 packages <- c('tidyverse', 'sf', 'raster', 'epm', 'rgeos', 'rgdal', 'RColorBrewer', 
               'scico', 'ggthemes', 'viridis', 'terra', 'treeio', 'phytools',
-              'geiger', 'picante', 'patchwork', 'png', 'grid')
+              'geiger', 'picante', 'patchwork', 'png', 'grid', 'RRPP')
 easypackages::libraries(packages)
 
 # hexagonal grid vertebrates ----
