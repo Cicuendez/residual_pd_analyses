@@ -13,7 +13,7 @@ packages <- c('tidyverse', 'sf', 'raster', 'epm', 'rgeos', 'rgdal', 'RColorBrewe
 easypackages::libraries(packages)
 
 # hexagonal grid vertebrates ----
-hexgrid_list <- readRDS('../objects/hexgrid_list_geo.rds')
+hexgrid_list <- readRDS('../objects/hexgrid_list_geo_v3.rds')
 taxa <- names(hexgrid_list)
 head(hexgrid_list[[1]])
 hexgrid_list[[1]]$temp
@@ -908,4 +908,61 @@ ggsave('plots/res_richness_plots.pdf', plot = last_plot())
 
 
 
+
+
+# Residual PD vs temp*prec ----
+# LM res~temp
+fit.res_temprec <- vector('list', length(taxa))
+rsq_res_temprec <- vector('numeric', length(taxa))
+names(rsq_res_temprec) <- names(fit.res_temprec) <- taxa
+for (t in taxa){
+  fit.res_temprec[[t]] <- lm.rrpp(resloess_pd_rich ~ temp*prec, SS.type = "II",
+                                  data = hexgrid_list[[t]])
+  fit.sum <- summary(fit.res_temprec[[t]])
+  fit.sum$table$Rsq
+  rsq_res_temprec[t] <- fit.sum$table$Rsq
+  
+}
+
+
+lapply(fit.res_temprec, summary)
+lapply(fit.res_temprec, anova)
+
+
+# Residual PD vs temp*prec*logdr ----
+# LM res~temp*prec*logdr
+fit.res_temprecdr <- vector('list', length(taxa))
+rsq_res_temprecdr <- vector('numeric', length(taxa))
+names(rsq_res_temprecdr) <- names(fit.res_temprecdr) <- taxa
+for (t in taxa){
+  fit.res_temprecdr[[t]] <- lm.rrpp(resloess_pd_rich ~ temp*prec*logdr, 
+                                  data = hexgrid_list[[t]])
+  fit.sum <- summary(fit.res_temprecdr[[t]])
+  fit.sum$table$Rsq
+  rsq_res_temprecdr[t] <- fit.sum$table$Rsq
+  
+}
+
+
+lapply(fit.res_temprecdr, summary)
+lapply(fit.res_temprecdr, anova)
+
+
+
+?lm.rrpp
+
+fit.resdr_temprec <- vector('list', length(taxa))
+rsq_resdr_temprec <- vector('numeric', length(taxa))
+names(rsq_resdr_temprec) <- names(fit.resdr_temprec) <- taxa
+for (t in taxa){
+  dat_temp <-rrpp.data.frame(x = cbind(resloess_pd_rich = hexgrid_list[[t]]$resloess_pd_rich, logdr= hexgrid_list[[t]]$logdr), temp = hexgrid_list[[t]]$temp, prec = hexgrid_list[[t]]$prec)
+  fit.resdr_temprec[[t]] <- lm.rrpp(x ~ temp*prec, data= dat_temp)
+  fit.sum <- summary(fit.resdr_temprec[[t]])
+  fit.sum$table$Rsq
+  rsq_resdr_temprec[t] <- fit.sum$table$Rsq
+  
+}
+
+lapply(fit.resdr_temprec, summary)
+rsq_resdr_temprec
 
