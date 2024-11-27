@@ -911,12 +911,12 @@ ggsave('plots/res_richness_plots.pdf', plot = last_plot())
 
 
 # Residual PD vs temp*prec ----
-# LM res~temp
+# LM res~temp*prec
 fit.res_temprec <- vector('list', length(taxa))
 rsq_res_temprec <- vector('numeric', length(taxa))
 names(rsq_res_temprec) <- names(fit.res_temprec) <- taxa
 for (t in taxa){
-  fit.res_temprec[[t]] <- lm.rrpp(resloess_pd_rich ~ temp*prec, SS.type = "II",
+  fit.res_temprec[[t]] <- lm.rrpp(resloess_pd_rich ~ temp*prec, SS.type = "III",
                                   data = hexgrid_list[[t]])
   fit.sum <- summary(fit.res_temprec[[t]])
   fit.sum$table$Rsq
@@ -924,9 +924,26 @@ for (t in taxa){
   
 }
 
-
+fit.res_temprec[[t]]$LM$fitted
 lapply(fit.res_temprec, summary)
 lapply(fit.res_temprec, anova)
+
+# 
+fit.res_temprec <- vector('list', length(taxa))
+rsq_res_temprec <- vector('numeric', length(taxa))
+names(rsq_res_temprec) <- names(fit.res_temprec) <- taxa
+for (t in taxa){
+  fit.res_temprec[[t]] <- lm.rrpp(resloess_pd_rich ~ temp + prec + temp:prec, 
+                                  SS.type = "I",
+                                  data = hexgrid_list[[t]])
+  fit.sum <- summary(fit.res_temprec[[t]])
+  fit.sum$table$Rsq
+  rsq_res_temprec[t] <- fit.sum$table$Rsq
+  
+}
+lapply(fit.res_temprec, summary)
+lapply(fit.res_temprec, anova)
+
 
 
 # Residual PD vs temp*prec*logdr ----
