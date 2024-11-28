@@ -74,7 +74,7 @@ time1 <- Sys.time()
 print(paste0('finished estimating gamma stat in ', time1 - time0))
 
 saveRDS(gamma_values, 'output/gamma_stat_values.rds')
-
+gamma_values <- readRDS('output/gamma_stat_values.rds')
 
 density(gamma_values[[t]][[xx]][[r]])
 densityplot(gamma_values[[t]][[xx]][[r]], col = 'black')
