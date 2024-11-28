@@ -39,7 +39,7 @@ names(post_list) <- taxa
 for (t in taxa){
   post_list[[t]] <- readRDS(paste0('../data/phylogeny/tree_post_100_', 
                                                toupper(t), '.rds'))
-  print(paste0(t, ' consensus tree imported'))
+  print(paste0(t, ' posterior trees imported'))
 }
 
 # consensus trees
