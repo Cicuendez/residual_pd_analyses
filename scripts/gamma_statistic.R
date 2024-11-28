@@ -73,7 +73,16 @@ for (t in taxa){
 time1 <- Sys.time()
 print(paste0('finished estimating gamma stat in ', time1 - time0))
 
+saveRDS(gamma_values, 'output/gamma_stat_values.rds')
 
 
+density(gamma_values[[t]][[xx]][[r]])
+densityplot(gamma_values[[t]][[xx]][[r]], col = 'black')
 
+density_data <- density(gamma_values[[t]][[xx]][[r]])
+plot(density_data, lwd = 2, type = 'n')
+polygon(density_data, 
+        col = "#963448",  # Fill color
+        border = "transparent")
+density_data$x
 
