@@ -189,3 +189,6 @@ wrap_plots(gamma.plot)
 ggsave(filename = 'plots/gamma.png', 
        plot = wrap_plots(gamma.plot))
 
+ggsave(filename = 'plots/gamma.pdf', 
+       plot = wrap_plots(gamma.plot))
+
