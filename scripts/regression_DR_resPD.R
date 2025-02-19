@@ -64,6 +64,7 @@ rownames(table_regression_dr_resPD) <- table_regression_dr_resPD$Clade
 
 # PLOTS ----
 # REGRESSION DR ~ RESIDUALS ----
+# > 1. All and highlight ----
 # All points gray and highlight each group separately
 grcol <- 'gray80'
 #alpha_value <- 0.1
@@ -131,4 +132,83 @@ wrap_plots(reg.plot.list)
 
 ggsave('plots/all_reg_v7.png', plot = wrap_plots(reg.plot.list), width = 7, height = 6)
 ggsave('plots/all_reg_v7.pdf', plot = wrap_plots(reg.plot.list), width = 7, height = 6)
+
+# > 2. Clades isolated ----
+reg.plot.list_2 <- vector('list', length = length(taxa))
+names(reg.plot.list_2) <- taxa
+
+ymin_pic <- setNames(c(-1500, -1500, -1500, -1500), taxa)
+ymax_pic <- setNames(c(-800, -800, -800, -800), taxa)
+xmin_pic <- setNames(c(-4.5, -4.5, -4.5, -4.5), taxa)
+xmax_pic <- setNames(c(-3, -3, -3, -3), taxa)
+
+
+
+for (t in taxa){
+  #taxapic_fn <- paste0('../taxa_images/', t, '.png')
+  #img <- readPNG(taxapic_fn)
+  #g <- rasterGrob(img, interpolate = TRUE)
+  
+  reg.plot.list_2[[t]] <- ggplot(data = hexgrid_list[[t]], 
+                               aes(y = resloess_pd_rich, x = logdr)) +
+
+    geom_point(color = group_colors[t], size = pointsize, 
+               alpha = alpha_value) +
+    stat_smooth(method = 'lm',
+                geom = 'line', alpha = 0.5, se = FALSE,
+                color = 'white', 
+                linetype = linetype, linewidth = lwidth + 2) +
+    geom_smooth(method = "lm", se = FALSE, color = group_colors[t], 
+                linetype = linetype, linewidth = lwidth) +
+    
+    #ylim(-1500, 1000) +
+    #xlim(0, 1) +
+    
+    #annotate(geom = 'text', x = -0.5, y = -950, 
+    #         label = paste0('R^2 == ', round(rsq[[t]], 3)), parse = TRUE, 
+    #         size = 2.5) +
+    #annotate(geom = 'text', x = -0.5, y = -1100, 
+    #         label = paste0('Estimate = ', 
+    #                        round(table_regression_dr_resPD[t, 'Estimate'], 3)), 
+    #         size = 2.5) +
+    #annotate(geom = 'text', x = -0.5, y = -1250, 
+    #         label = paste0('p <<< 0.001'), size = 2.5) +
+    #annotation_custom(grob = g, 
+    #                  xmin = xmin_pic[t], xmax = xmax_pic[t], 
+    #                  ymin = ymin_pic[t], ymax = ymax_pic[t]) +
+    labs(x = 'log(DR rate)', y = 'residual PD') +
+    
+    theme_bw() +
+    theme(element_blank(), 
+          legend.position = 'bottom', 
+          plot.title = element_text(hjust = 0.5, 
+                                    face = 'bold'))
+}
+
+wrap_plots(reg.plot.list_2)
+
+
+par(mfrow=c(2,2))
+
+t <- taxa[1]
+hist(hexgrid_list[[t]]$logdr, main = t)
+
+t <- taxa[2]
+hist(hexgrid_list[[t]]$logdr, main = t)
+
+t <- taxa[3]
+hist(hexgrid_list[[t]]$logdr, main = t)
+
+t <- taxa[4]
+hist(hexgrid_list[[t]]$logdr, main = t)
+
+
+
+
+
+
+
+
+
+
 
