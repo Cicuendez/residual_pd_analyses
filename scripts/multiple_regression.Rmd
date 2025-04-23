@@ -1,0 +1,66 @@
+---
+title: 'Appendix I'
+subtitle: "**Multiple regression models: temperature and precipitation**"
+#author: "Hector Tejero-Cicuendez"
+#date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load packages
+```{r packages, message = FALSE}
+# packages ----
+packages <- c('RRPP')
+easypackages::libraries(packages)
+```
+
+## Load data
+
+```{r load_data, echo=TRUE, eval= TRUE}
+# hexagonal grid vertebrates ----
+hexgrid_list <- readRDS('../../objects/hexgrid_list_geo_v3.rds')
+taxa <- names(hexgrid_list)
+```
+
+```{r curation, include = FALSE}
+for (t in taxa){
+  hexgrid_list[[t]] <- subset(hexgrid_list[[t]], select = -c(gridTemplate))
+}
+
+```
+
+```{r see_data}
+# see the data (e.g., for amphibians)
+head(hexgrid_list[['amphibians']])
+
+```
+
+
+## Analysis
+
+```{r analysis}
+
+# Residual PD vs temp*prec ----
+# LM res~temp*prec
+fit.res_temprec <- vector('list', length(taxa))
+rsq_res_temprec <- vector('numeric', length(taxa))
+names(rsq_res_temprec) <- names(fit.res_temprec) <- taxa
+for (t in taxa){
+  fit.res_temprec[[t]] <- lm.rrpp(resloess_pd_rich ~ temp*prec, SS.type = "III",
+                                  data = hexgrid_list[[t]])
+  fit.sum <- summary(fit.res_temprec[[t]])
+  fit.sum$table$Rsq
+  rsq_res_temprec[t] <- fit.sum$table$Rsq
+  
+}
+
+# see Rsq values
+lapply(fit.res_temprec, summary) 
+
+ # see significance of different terms
+lapply(fit.res_temprec, anova)
+
+```
