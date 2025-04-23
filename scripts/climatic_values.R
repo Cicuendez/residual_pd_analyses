@@ -257,7 +257,7 @@ for (t in taxa){
   res_temp_plots[[t]] <- ggplot(data = hexgrid_list[[t]], 
                                        aes(x = temp, y = resloess_pd_rich)) +
     geom_point(color = 'gray80', size = pointsize) + 
-    stat_smooth(method = "lm",
+    stat_smooth(method = "lm", se = TRUE,
                 formula = y ~ x,
                 geom = "smooth", color = 'black') +
     annotate(geom = 'text', x = x.annot_temp[t], y = y.annot_temp[t], size = 3,
@@ -925,8 +925,8 @@ for (t in taxa){
 }
 
 fit.res_temprec[[t]]$LM$fitted
-lapply(fit.res_temprec, summary)
-lapply(fit.res_temprec, anova)
+lapply(fit.res_temprec, summary) # see Rsq values
+lapply(fit.res_temprec, anova) # see significance of different terms
 
 # 
 fit.res_temprec <- vector('list', length(taxa))
