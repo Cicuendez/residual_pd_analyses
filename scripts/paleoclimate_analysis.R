@@ -14,59 +14,76 @@ paleoprec <- rast('../data/paleo_pgem/PALEO-PGEM-Series_bio12_mean.nc')
 terraOptions(progress = 1)
 
 # time in years
-time(paleotemp)
-time(paleoprec)
-identical(time(paleoprec), time(paleotemp))
-time(paleotemp[[1]])
-
-nlyr(paleotemp)
-nlyr(paleotemp[[c(1,4)]])
-
-
-
-
+#time(paleotemp)
+#time(paleoprec)
+#identical(time(paleoprec), time(paleotemp))
+#time(paleotemp[[1]])
+#
+#nlyr(paleotemp)
+#nlyr(paleotemp[[c(1,4)]])
 
 # reduce dataset ----
 # select layers
 idx <- seq(1, nlyr(paleotemp), by = 10)
 paleotemp_selected <- paleotemp[[idx]]
 paleoprec_selected <- paleoprec[[idx]]
-time(paleotemp_selected)
+#time(paleotemp_selected)
 
 # WAYS OF CAPTURING CLIMATE VARIABILITY ----
 
 ## 1. standard deviation ----
 # SD of temperature in the last 5 Ma
-temp_sd <- app(paleotemp_selected, fun = sd, na.rm = TRUE)
-plot(temp_sd)
+if ('temp_sd.rds' %in% list.files('output/')){
+  temp_sd <- readRDS('output/temp_sd.rds')
+  prec_sd <- readRDS('output/prec_sd.rds')
+}
 
-prec_sd <- app(paleoprec_selected, fun = sd, na.rm = TRUE)
-plot(prec_sd)
-
-saveRDS(temp_sd, 'output/temp_sd.rds')
-saveRDS(prec_sd, 'output/prec_sd.rds')
+if (!'temp_sd.rds' %in% list.files('output/')){
+  temp_sd <- app(paleotemp_selected, fun = sd, na.rm = TRUE)
+  plot(temp_sd)
+  
+  prec_sd <- app(paleoprec_selected, fun = sd, na.rm = TRUE)
+  plot(prec_sd)
+  
+  saveRDS(temp_sd, 'output/temp_sd.rds')
+  saveRDS(prec_sd, 'output/prec_sd.rds')
+}
 
 ## 2. net change ----
 temp_netchange <- paleotemp[[nlyr(paleotemp)]] - paleotemp[[1]]
+prec_netchange <- paleoprec[[nlyr(paleoprec)]] - paleoprec[[1]]
 plot(paleotemp[[1]])
 plot(paleotemp[[nlyr(paleotemp)]])
 plot(paleotemp[[round(nlyr(paleotemp)/2)]])
 
 plot(temp_netchange)
+plot(prec_netchange)
+
 
 ## 3. cumulative change ----
 # Differences between consecutive layers
-d <- diff(paleotemp_selected)   # computes layer_t - layer_(t-1)
-# diff() reduces the number of layers from 5001 → 5000.
-d
 
-# Cumulative change (sum of absolute changes per cell)
+if ('temp_cumchange.rds' %in% list.files('output/')){
+  temp_cumchange <- readRDS('output/temp_cumchange.rds')
+  prec_cumchange <- readRDS('output/prec_cumchange.rds')
+}
 
-
-
-temp_cumchange <- app(abs(d), sum, na.rm = TRUE)
-plot(temp_cumchange)
-
+if (!'temp_cumchange.rds' %in% list.files('output/')){
+  system.time(d_temp <- diff(paleotemp_selected))   # computes layer_t - layer_(t-1)
+  # diff() reduces the number of layers from 5001 → 5000.
+  d_temp
+  
+  # Cumulative change (sum of absolute changes per cell)
+  system.time(temp_cumchange <- app(abs(d_temp), sum, na.rm = TRUE))
+  plot(temp_cumchange)
+  
+  system.time(d_prec <- diff(paleoprec_selected))
+  prec_cumchange <- app(abs(d_prec), sum, na.rm = TRUE)
+  plot(prec_cumchange)
+  
+  saveRDS(temp_cumchange, 'output/temp_cumchange.rds')
+  saveRDS(prec_cumchange, 'output/prec_cumchange.rds')
+}
 
 
 
