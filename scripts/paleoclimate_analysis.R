@@ -93,32 +93,40 @@ nlyr(paleotemp)
 ncell(paleotemp[[1]])
 
 
-
-
-
-
-
-
 ## 4. slope per cell ----
-idx <- seq(1, nlyr(paleotemp), by = 500)
-paleotemp_onlyten <- paleotemp[[idx]]
-time(paleotemp_onlyten)
-
-t_steps <- as.numeric(time(paleotemp_onlyten))
-stopifnot(length(t_steps) == nlyr(paleotemp_onlyten))
-
-
-t_centered <- t_steps - mean(t_steps, na.rm = TRUE)
-den <- sum(t_centered^2, na.rm = TRUE)
-
-slope_fun <- function(x) {
-  ok <- is.finite(x) & is.finite(t_steps)
-  if (sum(ok) < 2) return(NA_real_)
-  xc <- x[ok] - mean(x[ok])
-  tc <- t_steps[ok] - mean(t_steps[ok])
-  sum(tc * xc) / sum(tc^2)
+if ('temp_slope.rds' %in% list.files('output/')){
+  paleotemp_slope <- readRDS('output/temp_slope.rds')
+  paleoprec_slope <- readRDS('output/prec_slope.rds')
 }
 
-system.time(slope_r <- app(paleotemp_onlyten, slope_fun))
-plot(slope_r)
-slope_r
+if (!'temp_slope.rds' %in% list.files('output/')){
+  t_steps <- as.numeric(time(paleotemp_selected))
+  stopifnot(length(t_steps) == nlyr(paleotemp_selected))
+  
+  
+  #t_centered <- t_steps - mean(t_steps, na.rm = TRUE)
+  #den <- sum(t_centered^2, na.rm = TRUE)
+  
+  slope_fun <- function(x){
+    ok <- is.finite(x) & is.finite(t_steps)
+    if (sum(ok) < 2) return(NA_real_)
+    xc <- x[ok] - mean(x[ok])
+    tc <- t_steps[ok] - mean(t_steps[ok])
+    sum(tc * xc) / sum(tc^2)
+  }
+  
+  system.time(paleotemp_slope <- app(paleotemp_selected, slope_fun))
+  system.time(paleoprec_slope <- app(paleoprec_selected, slope_fun))
+  plot(paleotemp_slope)
+  plot(paleoprec_slope)
+  
+  saveRDS(paleotemp_slope, 'output/temp_slope.rds')
+  saveRDS(paleoprec_slope, 'output/prec_slope.rds')
+  
+}
+
+
+
+
+
+
