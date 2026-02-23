@@ -104,6 +104,7 @@ ncell(paleotemp[[1]])
 
 
 ## 4. slope per cell ----
+# apply closed-form slope formula instead of fitting linear models for each cell
 if ('temp_slope.rds' %in% list.files('output/')){
   paleotemp_slope <- readRDS('output/temp_slope.rds')
   paleoprec_slope <- readRDS('output/prec_slope.rds')
@@ -127,14 +128,95 @@ if (!'temp_slope.rds' %in% list.files('output/')){
   
   system.time(paleotemp_slope <- app(paleotemp_selected, slope_fun))
   system.time(paleoprec_slope <- app(paleoprec_selected, slope_fun))
-  plot(paleotemp_slope)
-  plot(paleoprec_slope)
+  plot(paleotemp_slope*100000)
+  plot(paleoprec_slope*10000)
   
   saveRDS(paleotemp_slope, 'output/temp_slope.rds')
   saveRDS(paleoprec_slope, 'output/prec_slope.rds')
   
 }
 
+paleotemp_selected
+
+### > slope verification ----
+# verify, for a given cell_id, that the closed-form slope matches the lm() slope
+
+# extract values of each cell in each layer
+v <- values(paleotemp_selected)
+ncol(v) # 501 columns; each column represents one layer (one time step). 
+colnames(v)
+nrow(v) # 53640 rows; this is the number of cells in each layer. 
+
+
+
+# for example, for cell 103, 883... (see that it's not NA)
+v[,1] # look for the ones that are not NA
+cell <- 883
+v[cell,] # temp values in each time step for cell 103
+
+temp_cell <- data.frame(time = time(paleotemp_selected), temp = v[cell,])
+par(mar=c(5,5,2,2))
+plot(x = temp_cell$time, y = temp_cell$temp, pch = 16, col = 'gray60', main = 'Cell 103')
+
+lm_cell <- lm(temp_cell$temp ~ temp_cell$time)
+coef(lm_cell)[2] # slope from the linear model
+
+values(paleotemp_slope, mat = FALSE)[cell] # slope from the closed-form slope formula
+
+# slope values are the same with both methods
+
+
+
+
+
+
+
+# cell by coordinates
+x <- 10.5
+y <- 45.2
+
+ts <- extract(paleotemp, cbind(x, y))[1, -1]  # drop the ID column
+ts
+
+# add time values (e.g., for plotting)
+t <- as.numeric(time(paleotemp))
+
+df <- data.frame(time = t, value = as.numeric(ts))
+head(df)
+
+
+
+#Here’s a straightforward way to verify, for a given cell_id, that the 
+# closed-form slope matches the lm() slope (using the same handling of 
+# missing values).
+
+cell_id <- 123456  # <-- your cell
+
+# 1) Extract the time series for that cell (one value per layer)
+y <- as.numeric(values(paleotemp_selected, cells = cell_id))
+
+# 2) Get the time vector (must align with layers)
+t <- as.numeric(time(paleotemp_selected))
+
+stopifnot(length(y) == length(t))
+
+# 3) Keep only valid pairs (same NA handling as in the slope formula)
+ok <- is.finite(y) & is.finite(t)
+y2 <- y[ok]
+t2 <- t[ok]
+
+# ---- A) slope from lm() ----
+fit <- lm(y2 ~ t2)
+slope_lm <- unname(coef(fit)[2])
+
+# ---- B) slope from the closed-form formula ----
+tc <- t2 - mean(t2)
+yc <- y2 - mean(y2)
+slope_formula <- sum(tc * yc) / sum(tc^2)
+
+# 4) Compare
+c(slope_lm = slope_lm, slope_formula = slope_formula, diff = slope_lm - slope_formula)
+all.equal(slope_lm, slope_formula, tolerance = 1e-12)
 
 
 
