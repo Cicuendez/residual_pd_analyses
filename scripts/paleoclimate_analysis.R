@@ -6,7 +6,7 @@
 # packages ----
 library(terra)
 
-# import paleoclimate ----
+# import paleoclimate (5 Ma until 1950; preindustrial) ----
 paleotemp <- rast('../data/paleo_pgem/PALEO-PGEM-Series_bio1_mean.nc')
 paleoprec <- rast('../data/paleo_pgem/PALEO-PGEM-Series_bio12_mean.nc')
 
@@ -40,14 +40,20 @@ if ('temp_sd.rds' %in% list.files('output/')){
 
 if (!'temp_sd.rds' %in% list.files('output/')){
   temp_sd <- app(paleotemp_selected, fun = sd, na.rm = TRUE)
-  plot(temp_sd)
+  plot(log(temp_sd))
   
   prec_sd <- app(paleoprec_selected, fun = sd, na.rm = TRUE)
+  plot(log(prec_sd))
   plot(prec_sd)
   
   saveRDS(temp_sd, 'output/temp_sd.rds')
   saveRDS(prec_sd, 'output/prec_sd.rds')
 }
+
+hist(temp_sd)
+hist(log(temp_sd))
+hist(prec_sd)
+hist(log(prec_sd))
 
 ## 2. net change ----
 temp_netchange <- paleotemp[[nlyr(paleotemp)]] - paleotemp[[1]]
@@ -85,6 +91,10 @@ if (!'temp_cumchange.rds' %in% list.files('output/')){
   saveRDS(prec_cumchange, 'output/prec_cumchange.rds')
 }
 
+plot(temp_cumchange)
+plot(log(temp_cumchange))
+plot(prec_cumchange)
+plot(log(prec_cumchange))
 
 
 plot(paleotemp[[1]])
