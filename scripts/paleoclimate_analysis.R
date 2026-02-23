@@ -56,14 +56,26 @@ hist(prec_sd)
 hist(log(prec_sd))
 
 ## 2. net change ----
-temp_netchange <- paleotemp[[nlyr(paleotemp)]] - paleotemp[[1]]
-prec_netchange <- paleoprec[[nlyr(paleoprec)]] - paleoprec[[1]]
-plot(paleotemp[[1]])
-plot(paleotemp[[nlyr(paleotemp)]])
-plot(paleotemp[[round(nlyr(paleotemp)/2)]])
+if ('temp_netchange.rds' %in% list.files('output/')){
+  temp_netchange <- readRDS('output/temp_netchange.rds')
+  prec_netchange <- readRDS('output/prec_netchange.rds')
+}
 
-plot(temp_netchange)
-plot(prec_netchange)
+if (!'temp_netchange.rds' %in% list.files('output/')){
+  temp_netchange <- paleotemp[[nlyr(paleotemp)]] - paleotemp[[1]]
+  prec_netchange <- paleoprec[[nlyr(paleoprec)]] - paleoprec[[1]]
+  plot(paleotemp[[1]])
+  plot(paleotemp[[nlyr(paleotemp)]])
+  plot(paleotemp[[round(nlyr(paleotemp)/2)]])
+  
+  plot(temp_netchange)
+  plot(prec_netchange)
+  
+  saveRDS(temp_netchange, 'output/temp_netchange.rds')
+  saveRDS(prec_netchange, 'output/prec_netchange.rds')
+  
+}
+
 
 
 ## 3. cumulative change ----
