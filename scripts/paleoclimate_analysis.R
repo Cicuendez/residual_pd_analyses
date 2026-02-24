@@ -151,6 +151,50 @@ for (t in taxa){
   print('##############################')
 }
 
+# Paleoclimate spaces ----
+
+crad_col <- '#2F6BA8' # blue
+mus_col <- '#A72E37' # red
+mid_col <- 'gray80'
+
+pointsize <- 1
+transparency <- 0.6
+
+ggplot(data = hexgrid_list[[t]] %>% filter(type == 'none'), 
+       aes(x = log(paleotemp_sd), y = log(paleoprec_sd))) + 
+  geom_point(color = 'gray80', size = pointsize) +
+  geom_point(data = hexgrid_list[[t]] %>% filter(type == 'cradle'), 
+             color = crad_col,
+             size = pointsize, alpha = transparency) +
+  #lims(x = c(-20, 30)) +
+  labs(title = paste0(t, ' paleoclimatic space')) +
+  theme_minimal() +
+  theme(legend.position = 'none', 
+        legend.key.height = unit(0.2,"cm"),
+        plot.title = element_text(hjust = 0.5, 
+                                  face = 'bold'),
+        legend.text = element_text(angle = 0, hjust = 1))
+
+ggplot(data = hexgrid_list[[t]] %>% filter(type == 'none'), 
+       aes(x = log(paleotemp_sd), y = log(paleoprec_sd))) + 
+  geom_point(color = 'gray80', size = pointsize) +
+  geom_point(data = hexgrid_list[[t]] %>% filter(type == 'museum'), 
+             color = mus_col,
+             size = pointsize, alpha = transparency) +
+  #lims(x = c(-20, 30)) +
+  labs(title = paste0(t, ' paleoclimatic space')) +
+  theme_minimal() +
+  theme(legend.position = 'none', 
+        legend.key.height = unit(0.2,"cm"),
+        plot.title = element_text(hjust = 0.5, 
+                                  face = 'bold'),
+        legend.text = element_text(angle = 0, hjust = 1))
+
+
+
+
+
+
 
 
 
