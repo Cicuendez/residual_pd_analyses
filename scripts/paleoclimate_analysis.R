@@ -6,6 +6,9 @@
 # packages ----
 library(terra)
 
+# show progress
+terraOptions(progress = 1)
+
 # import paleoclimate variables ----
 # These are derived from the PALEO-PGEM paleoclimatic layers spanning 
 # from 5 Ma to 1950.
@@ -40,10 +43,52 @@ plot(paleoprec_slope*10000, main = 'prec slope')
 
 terra::res(temp_sd)
 
+
+
 # import hexagons ----
 hexgrid_list <- readRDS('../objects/hexgrid_list_geo_v3.rds')
 # resolution: 100 km (~ 1 degree)
+taxa <- names(hexgrid_list)
 
+names(hexgrid_list[['squamates']][c('long', 'lat')])[1] <- 'lon'
+head(hexgrid_list[['squamates']][c('long', 'lat')])
+
+colnames(hexgrid_list$squamates)[19] <- 'lon'
+
+nrow(hexgrid_list$squamates)
+
+crs(temp_sd)
+crs(hexgrid_list[['squamates']])
+
+?project
+temp_sd_reprojected <- terra::project(temp_sd, crs(hexgrid_list[[1]]))
+
+
+terra::extract()
+?extract
+?terra::extract
+class(hexgrid_list[[t]])
+
+
+for (t in taxa){
+  print(toupper(t))
+
+  # get paleotemperature SD values per grid cell
+  print(paste0('extracting temperature values for ', t))
+
+  paleotemp_sd <- terra::extract(x = temp_sd_reprojected, 
+                                 y = hexgrid_list[[t]][1:10, c('long', 'lat')], 
+                               fun = 'mean', method = 'bilinear', na.rm = TRUE)
+  hexgrid_list[[t]]$paleotemp_sd <- as.vector(paleotemp_sd)
+  
+  # get precipitation values per grid cell 
+  print(paste0('extracting precipitation values for ', t))
+  prec_vals <- raster::extract(x = prec_ea, y = hexgrid_list[[t]], 
+                               fun = mean, na.rm = TRUE)
+  hexgrid_list[[t]]$prec <- as.vector(prec_vals)
+  
+  print('##############################')
+}
 
 
 
