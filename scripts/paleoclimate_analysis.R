@@ -6,6 +6,9 @@ library(sf)
 library(tidyverse)
 library(patchwork)
 library(data.table)
+library(forcats)
+library(tidytext)
+library(viridis)
 #library(tidyterra)
 
 # show progress
@@ -207,15 +210,13 @@ for (t in taxa){
 # designation of global regions (for instance, there are some cradle cells in the 
 # overall museum region of south_africa, so we want to keep only the museum cells)
 
-#paleoclim_vars <- colnames(hexgrid_list[[t]])[grep('paleo', colnames(hexgrid_list[[t]]))]
-
 for (t in taxa){
   for (typ in c('cradle', 'museum')){
     reg <- cradles_and_museums[[t]][[typ]]
     
     for (r in reg){
       hexgrid_per_region[[t]][[typ]][[r]] <- 
-        data.frame(hexgrid_list[[t]] %>% filter(type == typ & geo %in% r))
+        hexgrid_list[[t]] %>% filter(type == typ & geo %in% r)
     }
   }
 }
@@ -233,8 +234,168 @@ for (t in taxa){
 
 
 # PALEOCLIMATE VIOLIN PLOTS ----
+# colors ----
+col_cradle <- '#2F6BA8' # blue
+col_museum <- '#A72E37' # red
+
+paleoclim_vars <- colnames(hexgrid_list[[t]])[grep('paleo', colnames(hexgrid_list[[t]]))]
 
 
+# Long dataframe
+df_long <- bind_rows(lapply(names(hexgrid_per_region_combined), function(g) {
+  hexgrid_per_region_combined[[g]] %>%
+    mutate(group = g)
+})) %>%
+  select(group, geo, type, all_of(paleoclim_vars)) %>%
+  pivot_longer(cols = all_of(paleoclim_vars),
+               names_to = "variable",
+               values_to = "value") %>%
+  filter(is.finite(value)) %>%
+  mutate(
+    group = factor(group,
+                   levels = c("amphibians","birds","mammals","squamates")),
+    type = factor(type,
+                  levels = c("cradle","museum"))
+  )
+
+
+plot_one_variable <- function(varname){
+  
+  pd <- position_dodge(width = 0.85)
+  
+  df_plot <- df_long %>%
+    filter(variable == varname) %>%
+    group_by(group, geo) %>%
+    mutate(med = median(value, na.rm = TRUE)) %>%
+    ungroup() %>%
+    mutate(
+      geo_group = reorder_within(geo, med, group)
+    )
+  
+  ggplot(df_plot,
+         aes(x = geo_group, y = value, fill = type)) +
+    
+    geom_hline(yintercept = 0,
+               linetype = "dashed",
+               linewidth = 0.4,
+               color = "gray60") +
+    
+    geom_violin(trim = TRUE,
+                scale = "width",
+                position = pd,
+                color = NA) +
+    
+    scale_fill_manual(values = c(
+      cradle = col_cradle,
+      museum = col_museum
+    )) +
+    
+    scale_x_reordered() +
+    
+    facet_wrap(~ group,
+               ncol = 2,
+               scales = "free_x") +
+    
+    labs(title = varname,
+         x = NULL,
+         y = NULL) +
+    
+    theme_classic() +
+    theme(
+      legend.position = "none",
+      strip.text = element_text(face = "bold"),
+      axis.text.x = element_text(angle = 45,
+                                 hjust = 1),
+      axis.ticks.x = element_blank()
+    )
+}
+
+
+paleoclimate_violin_plots <- setNames(
+  lapply(paleoclim_vars, plot_one_variable),
+  paleoclim_vars
+)
+
+# Example
+paleoclimate_violin_plots$paleotemp_sd
+wrap_plots(paleoclimate_violin_plots, ncol = 2)
+ggsave('plots/paleoclimate_violin.pdf', wrap_plots(paleoclimate_violin_plots, ncol = 2), 
+       height = 20, width = 12)
+
+
+# PALECLIMATE REGION MAPS ----
+
+world <- rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")
+proj_hexgrid <- crs(hexgrid_list[[1]])
+world_projected <- st_transform(world, crs = proj_hexgrid)
+
+maps <- list()
+
+for (t in taxa) {
+  
+  maps[[t]] <- list()
+  
+  # collect all pieces for this taxon: all types x geos
+  # hexgrid_per_region[[tx]] is a list of types; each type is a list of geos (sf-ish tables)
+  dat_list <- list()
+  
+  for (typ in c('cradle', 'museum')) {
+    for (r in names(hexgrid_per_region[[t]][[typ]])) {
+      
+      dat_list[[paste(typ, r, sep = "__")]] <- hexgrid_per_region[[t]][[typ]][[r]] %>%
+        mutate(type = typ, geo = r)
+    }
+  }
+  
+  dat <- bind_rows(dat_list)
+  
+
+
+  
+  # Crear contornos por región (geo) y tipo (cradle/museum)
+  #    -> st_union une todas las celdas de esa región en una geometría
+  outlines <- dat %>%
+    group_by(type, geo) %>%
+    summarise(geometry = st_union(gridTemplate), .groups = "drop")
+  
+  for (v in paleoclim_vars) {
+    
+    # keep only non-missing values for this variable
+    dat_sf_v <- dat %>% filter(is.finite(.data[[v]]))
+    
+    p <- ggplot() +
+      geom_sf(data = world_projected, fill = "gray80", color = "gray80", linewidth = 0.2) +
+      geom_sf(data = dat_sf_v, aes(fill = .data[[v]]), color = NA) +
+      
+      geom_sf(data = outlines,
+              color = "white",
+              fill = NA,
+              linewidth = 0.5) + 
+      
+      geom_sf(data = outlines, aes(color = type), fill = NA, linewidth = 0.3) +
+      
+      scale_fill_viridis(
+        option = "viridis",
+        direction = 1
+      ) +
+      
+      scale_color_manual(values = c(cradle = col_cradle, museum = col_museum)) +
+      coord_sf(crs = proj_hexgrid) +
+      labs(title = paste(t, "-", v), fill = v, color = "type") +
+      theme_classic() +
+      theme(
+        axis.title = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(), 
+        legend.position = 'bottom'
+      )
+    
+    maps[[t]][[v]] <- p
+  }
+}
+
+# Example: show one
+maps[["squamates"]][["paleotemp_sd"]]
 
 
 
