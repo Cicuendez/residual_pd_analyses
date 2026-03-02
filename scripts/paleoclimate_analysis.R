@@ -5,6 +5,7 @@ library(terra)
 library(sf)
 library(tidyverse)
 library(patchwork)
+library(data.table)
 #library(tidyterra)
 
 # show progress
@@ -165,8 +166,8 @@ if (!'hexgrid_list_paleoclimate.rds' %in% list.files('../objects/')){
 }
 
 
-# PALEOCLIMATE VIOLIN PLOTS ----
 
+# dataframes per region ----
 
 # import data sp in high and low resPD regions.
 sp_cramus <- readRDS('../objects/sp_cramus.rds')
@@ -187,7 +188,7 @@ for (t in taxa){
   }
 }
 
-# dataframes per region ----
+
 # Create the object to separate each high and low resPD region
 hexgrid_per_region <- setNames(vector('list', length(taxa)), taxa)
 
@@ -219,9 +220,19 @@ for (t in taxa){
   }
 }
 
+# This way we keep only the cells that have low or high PD (categorized as 
+# cradles or museums) in the larger regions categorized as global 
+# regions of low or high PD.
 
-hexgrid_per_region[[t]][[typ]][[r]]$type
+# combine dataframes per region ----
+hexgrid_per_region_combined <- setNames(vector('list', length(taxa)), taxa)
+for (t in taxa){
+  hexgrid_per_region_combined[[t]] <- rbindlist(lapply(hexgrid_per_region[[t]], rbindlist))
+}
 
+
+
+# PALEOCLIMATE VIOLIN PLOTS ----
 
 
 
