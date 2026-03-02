@@ -189,16 +189,16 @@ for (t in taxa){
 
 # dataframes per region ----
 # Create the object to separate each high and low resPD region
-df_per_region <- setNames(vector('list', length(taxa)), taxa)
+hexgrid_per_region <- setNames(vector('list', length(taxa)), taxa)
 
 for (t in taxa){
-  df_per_region[[t]] <- setNames(vector('list', length = 2), c('cradle', 'museum'))
+  hexgrid_per_region[[t]] <- setNames(vector('list', length = 2), c('cradle', 'museum'))
 }
 
 for (t in taxa){
   for (typ in c('cradle', 'museum')){
     reg <- names(sp_cramus[[t]][[typ]])
-    df_per_region[[t]][[typ]] <- setNames(vector('list', length = length(reg)), reg)
+    hexgrid_per_region[[t]][[typ]] <- setNames(vector('list', length = length(reg)), reg)
   }
 }
 
@@ -206,13 +206,25 @@ for (t in taxa){
 # designation of global regions (for instance, there are some cradle cells in the 
 # overall museum region of south_africa, so we want to keep only the museum cells)
 
-paleoclim_vars <- colnames(hexgrid_list[[t]])[grep('paleo', colnames(hexgrid_list[[t]]))]
+#paleoclim_vars <- colnames(hexgrid_list[[t]])[grep('paleo', colnames(hexgrid_list[[t]]))]
+
+for (t in taxa){
+  for (typ in c('cradle', 'museum')){
+    reg <- cradles_and_museums[[t]][[typ]]
+    
+    for (r in reg){
+      hexgrid_per_region[[t]][[typ]][[r]] <- 
+        data.frame(hexgrid_list[[t]] %>% filter(type == typ & geo %in% r))
+    }
+  }
+}
+
+
+hexgrid_per_region[[t]][[typ]][[r]]$type
 
 
 
 
-x <- data.frame(hexgrid_list[[t]] %>% filter(type == typ & geo %in% cradles_and_museums[[t]][[typ]]))
-x[x$geo == 'south_africa',]$type  
 
 
 
