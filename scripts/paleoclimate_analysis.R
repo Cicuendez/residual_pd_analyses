@@ -170,9 +170,9 @@ if (!'hexgrid_list_paleoclimate.rds' %in% list.files('../objects/')){
 
 # import data sp in high and low resPD regions.
 sp_cramus <- readRDS('../objects/sp_cramus.rds')
-names(sp_cramus)
-names(sp_cramus$squamates$cradle)
-names(sp_cramus$squamates$museum)
+#names(sp_cramus)
+#names(sp_cramus$squamates$cradle)
+#names(sp_cramus$squamates$museum)
 
 
 
@@ -187,9 +187,30 @@ for (t in taxa){
   }
 }
 
+# dataframes per region ----
+# Create the object to separate each high and low resPD region
+df_per_region <- setNames(vector('list', length(taxa)), taxa)
+
+for (t in taxa){
+  df_per_region[[t]] <- setNames(vector('list', length = 2), c('cradle', 'museum'))
+}
+
+for (t in taxa){
+  for (typ in c('cradle', 'museum')){
+    reg <- names(sp_cramus[[t]][[typ]])
+    df_per_region[[t]][[typ]] <- setNames(vector('list', length = length(reg)), reg)
+  }
+}
+
 # this is to keep only the cradle or the museum cells appropriate according to our 
 # designation of global regions (for instance, there are some cradle cells in the 
 # overall museum region of south_africa, so we want to keep only the museum cells)
+
+paleoclim_vars <- colnames(hexgrid_list[[t]])[grep('paleo', colnames(hexgrid_list[[t]]))]
+
+
+
+
 x <- data.frame(hexgrid_list[[t]] %>% filter(type == typ & geo %in% cradles_and_museums[[t]][[typ]]))
 x[x$geo == 'south_africa',]$type  
 
