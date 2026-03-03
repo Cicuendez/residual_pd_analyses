@@ -233,21 +233,26 @@ for (t in taxa){
 
 
 
-# PALEOCLIMATE VIOLIN PLOTS ----
+# CLIMATE VIOLIN PLOTS ----
 # colors ----
 col_cradle <- '#2F6BA8' # blue
 col_museum <- '#A72E37' # red
 
 paleoclim_vars <- colnames(hexgrid_list[[t]])[grep('paleo', colnames(hexgrid_list[[t]]))]
 
+# let's take the main variables used for the main text: 
+# - present temperature and present precipitation; 
+# - cumulative change of temp and prec in the past 5 Ma (preindustrial). 
+
+clim_vars <- c('temp', 'prec', 'paleotemp_cumchange', 'paleoprec_cumchange')
 
 # Long dataframe
 df_long <- bind_rows(lapply(names(hexgrid_per_region_combined), function(g) {
   hexgrid_per_region_combined[[g]] %>%
     mutate(group = g)
 })) %>%
-  select(group, geo, type, all_of(paleoclim_vars)) %>%
-  pivot_longer(cols = all_of(paleoclim_vars),
+  select(group, geo, type, all_of(clim_vars)) %>%
+  pivot_longer(cols = all_of(clim_vars),
                names_to = "variable",
                values_to = "value") %>%
   filter(is.finite(value)) %>%
@@ -256,6 +261,94 @@ df_long <- bind_rows(lapply(names(hexgrid_per_region_combined), function(g) {
                    levels = c("amphibians","birds","mammals","squamates")),
     type = factor(type,
                   levels = c("cradle","museum"))
+  )
+
+# new lables
+geo_labels <- c(
+  "africa_madagascar" = "Africa - Madag.",
+  "south_america" = "S America",
+  "north_america" = "N America",
+  "southeast_asia" = "SE Asia",
+  "south_africa" = "S Africa",
+  "australia_oceania_asia" = "Austral–Asia",
+  "australia_oceania" = "Austral. - Oceania",
+  "africa" = "Africa"
+)
+
+df_long <- df_long %>%
+  mutate(
+    geo = recode(geo, !!!geo_labels)
+  )
+
+
+pd <- position_dodge(width = 0.85)
+
+# shade first and third columns of the plots (taxa separation)
+shade_df <- data.frame(
+  group = levels(df_long$group)[c(1, 3)]
+)
+
+p_4x4 <- df_long %>%
+  filter(variable %in% clim_vars) %>%
+  filter(is.finite(value)) %>%
+  ggplot(aes(x = geo, y = value, fill = type)) +
+  
+  # background for columns
+  geom_rect(
+    data = shade_df,
+    aes(xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf),
+    inherit.aes = FALSE,
+    fill = "#F7F7F7"
+  ) +
+  
+  geom_hline(yintercept = 0, linetype = "dashed", linewidth = 0.4, color = "gray60") +
+  
+  geom_violin(trim = TRUE, scale = "width", position = pd, color = NA) +
+  
+  scale_fill_manual(values = c(cradle = col_cradle, museum = col_museum)) +
+  
+  facet_grid(variable ~ group, scales = "free") +   # 4 taxa (filas) × 4 variables (columnas)
+  
+  labs(x = NULL, y = NULL) +
+  
+  theme_classic() +
+  theme(
+    legend.position = "none",
+    strip.text = element_text(face = "bold"),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.ticks.x = element_blank()
+  )
+
+p_4x4
+
+# add some more space between taxa panels
+p_4x4 +
+  theme(
+    panel.spacing.x = unit(1.2, "lines"),
+    panel.background = element_rect(fill = "white"),
+    plot.background = element_rect(fill = "white")
+  )
+
+# add squares separating panels
+p_4x4 +
+  theme(
+    panel.spacing.x = unit(0.8, "lines"),
+    panel.background = element_rect(fill = "white"),
+    plot.background = element_rect(fill = "white"),
+    strip.background = element_rect(fill = "grey92"),
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.6)
+  )
+
+p_4x4 +
+  theme(
+    panel.spacing.x = unit(1.2, "lines"),
+    
+    # strips: the titles of rows and columns (y = variables, x = taxa)
+    strip.background.x = element_rect(fill = "white", color = 'white'),
+    strip.background.y = element_rect(fill = "white", color = 'white'),
+    strip.text = element_text(face = "bold"),
+    
+    panel.background = element_rect(fill = "white")
   )
 
 
@@ -267,13 +360,12 @@ plot_one_variable <- function(varname){
     filter(variable == varname) %>%
     group_by(group, geo) %>%
     mutate(med = median(value, na.rm = TRUE)) %>%
-    ungroup() %>%
-    mutate(
-      geo_group = reorder_within(geo, med, group)
-    )
-  
+    ungroup()
+    #mutate(geo_group = reorder_within(geo, med, group)) # sort by median
+    
+
   ggplot(df_plot,
-         aes(x = geo_group, y = value, fill = type)) +
+         aes(x = geo, y = value, fill = type)) +
     
     geom_hline(yintercept = 0,
                linetype = "dashed",
@@ -290,7 +382,7 @@ plot_one_variable <- function(varname){
       museum = col_museum
     )) +
     
-    scale_x_reordered() +
+    #scale_x_reordered() +
     
     facet_wrap(~ group,
                ncol = 2,
@@ -311,14 +403,14 @@ plot_one_variable <- function(varname){
 }
 
 
-paleoclimate_violin_plots <- setNames(
-  lapply(paleoclim_vars, plot_one_variable),
-  paleoclim_vars
+climate_violin_plots <- setNames(
+  lapply(clim_vars, plot_one_variable),
+  clim_vars
 )
 
 # Example
-paleoclimate_violin_plots$paleotemp_sd
-wrap_plots(paleoclimate_violin_plots, ncol = 2)
+climate_violin_plots$paleotemp_sd
+wrap_plots(climate_violin_plots, nrow = 4)
 ggsave('plots/paleoclimate_violin.pdf', wrap_plots(paleoclimate_violin_plots, ncol = 2), 
        height = 20, width = 12)
 
@@ -395,7 +487,7 @@ for (t in taxa) {
 }
 
 # Example: show one
-maps[["squamates"]][["paleotemp_sd"]]
+maps[["mammals"]][["paleotemp_cumchange"]]
 
 
 
