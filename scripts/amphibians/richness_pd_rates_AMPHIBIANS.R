@@ -38,12 +38,22 @@ epm_dr_sd <- gridMetrics(amph_EPM, metric = 'variance')
 colnames(epm_dr_sd$grid)[colnames(epm_dr_sd$grid) == 'variance'] <- 'dr_sd'
 dr_grid_sd <- epm_dr_sd$grid['dr_sd']
 
-# Get DR grid ----
+# Get DR mean grid ----
 epm_dr <- gridMetrics(amph_EPM, metric = 'mean')
 colnames(epm_dr$grid)[colnames(epm_dr$grid) == 'mean'] <- 'dr'
 dr_grid <- epm_dr$grid['dr']
 dr_grid$logdr <- log(dr_grid$dr)
 range(dr_grid$dr)
+
+# Get DR median grid ----
+epm_dr_median <- gridMetrics(amph_EPM, metric = 'median')
+colnames(epm_dr_median$grid)[colnames(epm_dr_median$grid) == 'median'] <- 'dr_median'
+dr_median_grid <- epm_dr_median$grid['dr_median']
+dr_median_grid$logdr_median <- log(dr_median_grid$dr_median)
+range(dr_median_grid$dr_median)
+
+cor(dr_grid$dr, dr_median_grid$dr_median)
+plot(dr_grid$dr, dr_median_grid$dr_median, pch = 16, col = 'gray20')
 
 # Get PD grid ----
 pd_mean <- readRDS('../objects/pd_mean_AMPHIBIANS.rds')
