@@ -20,8 +20,8 @@ sp_in_dist <- dist_sf$species
 
 # Shared species ----
 # Get species present in both datasets: tree and distribution
-length(sp_in_tree)
-length(sp_in_dist)
+length(sp_in_tree) # 7239 sp amphibians in the phylogeny
+length(sp_in_dist) # 7175 sp amphibians in the distribution data
 head(sp_in_tree)
 sp_in_dist[1]
 grep(sp_in_dist[1], sp_in_tree)
