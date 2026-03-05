@@ -27,7 +27,7 @@ sp_in_dist <- dist_sf_squamata$species
 
 # Shared species ----
 # Get species present in both dataset: tree and distribution
-length(sp_in_tree)
+length(sp_in_tree) # 9755 species in phylo
 length(sp_in_tree[sp_in_tree %in% sp_in_dist])
 
 length(sp_in_dist)

@@ -20,8 +20,8 @@ sp_in_dist <- dist_sf$species
 
 # Shared species ----
 # Get species present in both datasets: tree and distribution
-length(sp_in_tree)
-length(sp_in_dist)
+length(sp_in_tree) # 5912 species in phylo
+length(sp_in_dist) # 5599 species in distribution data
 head(sp_in_tree)
 sp_in_dist[1]
 grep(sp_in_dist[1], sp_in_tree)
@@ -59,7 +59,7 @@ write.tree(tree_renamed, '/Volumes/GoogleDrive/.shortcut-targets-by-id/1UUotV2Zf
 
 sp_in_tree <- tree_renamed$tip.label
 sp_in_both <- intersect(sp_in_tree, sp_in_dist)
-length(sp_in_both)
+length(sp_in_both) # 5164 species in both
 
 # Clean  tree ----
 sp_to_drop_tree <- sp_in_tree[!(sp_in_tree %in% sp_in_both)]
