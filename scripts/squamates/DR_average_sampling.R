@@ -3,7 +3,7 @@
 
 # Import object dr_list100 ----
 # a list with vectors of the DR rates for all sampled trees
-dr_list100 <- readRDS("objects/dr_rates/dr_list100.rds")
+dr_list100 <- readRDS("../objects/dr_list100.rds")
 
 # df list ----
 # Create a list of data frames (instead of vectors)
