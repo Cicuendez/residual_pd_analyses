@@ -270,7 +270,7 @@ geo_labels <- c(
   "north_america" = "N America",
   "southeast_asia" = "SE Asia",
   "south_africa" = "S Africa",
-  "australia_oceania_asia" = "Austral–Asia",
+  "australia_oceania_asia" = "Austral-Asia",
   "australia_oceania" = "Austral. - Oceania",
   "africa" = "Africa", 
   "oriental" = "India - SE Asia", 
@@ -323,7 +323,13 @@ p_4x4 <- df_long %>%
   
   geom_hline(yintercept = 0, linetype = "dashed", linewidth = 0.4, color = "gray60") +
   
-  geom_violin(trim = TRUE, scale = "width", position = pd, color = NA) +
+  geom_violin(trim = TRUE, scale = "width", position = pd, color = NA, alpha = 0.7) +
+  
+  geom_boxplot(width = 0.15, position = pd, 
+               outlier.shape = 16, outlier.size = 0.8, 
+               outlier.stroke = 0, alpha = 0.9, 
+               color = 'black', 
+               linewidth = 0.2) +
   
   scale_fill_manual(values = c(cradle = col_cradle, museum = col_museum)) +
   
@@ -336,12 +342,29 @@ p_4x4 <- df_long %>%
   theme_classic() +
   theme(
     legend.position = "none",
-    strip.text = element_text(face = "bold"),
+    strip.text = element_text(face = "bold"), # text in the panel boxes
     axis.text.x = element_text(angle = 45, hjust = 1),
-    axis.ticks.x = element_blank()
+    axis.ticks.x = element_blank(), 
+    
+    #strip.background.x = element_rect(fill = "#EAEAEA", color = NA),
+    #strip.background.y = element_rect(fill = "#F5F5F5", color = NA)
+    
+    #strip.background = element_blank()
+    
+    strip.background.x = element_rect(
+      fill = "grey90",
+      color = "black",
+      linewidth = 0.2
+    ),
+    
+    strip.background.y = element_rect(
+      fill = "grey90",
+      color = "black",
+      linewidth = 0.2
+    )
   )
 
-p_4x4
+#p_4x4
 
 # add some more space between taxa panels
 paleoclim_plot_main <- p_4x4 +
@@ -352,7 +375,8 @@ paleoclim_plot_main <- p_4x4 +
   )
 paleoclim_plot_main
 
-ggsave('')
+
+ggsave('plots/paleoclim_violin_main.pdf', paleoclim_plot_main)
 
 # add squares separating panels
 #p_4x4 +
