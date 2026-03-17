@@ -272,14 +272,34 @@ geo_labels <- c(
   "south_africa" = "S Africa",
   "australia_oceania_asia" = "Austral–Asia",
   "australia_oceania" = "Austral. - Oceania",
-  "africa" = "Africa"
+  "africa" = "Africa", 
+  "oriental" = "India - SE Asia", 
+  "australia" = "Australia"
 )
 
 df_long <- df_long %>%
   mutate(
-    geo = recode(geo, !!!geo_labels)
-  )
+    geo = recode(geo, !!!geo_labels), 
+    variable = factor(
+      variable,
+      levels = c("temp", "prec", "paleotemp_cumchange", "paleoprec_cumchange")
+      )
+    )
 
+
+var_labels <- c(
+  "temp" = "Temperature",
+  "prec" = "Precipitation",
+  "paleotemp_cumchange" = "Temp. change",
+  "paleoprec_cumchange" = "Precip. change"
+)
+
+taxa_labels <- c(
+  "amphibians" = "Amphibians",
+  "birds" = "Birds",
+  "mammals" = "Mammals",
+  "squamates" = "Squamates"
+)
 
 pd <- position_dodge(width = 0.85)
 
@@ -307,7 +327,9 @@ p_4x4 <- df_long %>%
   
   scale_fill_manual(values = c(cradle = col_cradle, museum = col_museum)) +
   
-  facet_grid(variable ~ group, scales = "free") +   # 4 taxa (filas) × 4 variables (columnas)
+  facet_grid(variable ~ group, scales = "free", 
+             labeller = labeller(variable = var_labels, 
+                                 group = taxa_labels)) +   # 4 taxa (rows) × 4 variables (columns)
   
   labs(x = NULL, y = NULL) +
   
@@ -322,34 +344,37 @@ p_4x4 <- df_long %>%
 p_4x4
 
 # add some more space between taxa panels
-p_4x4 +
+paleoclim_plot_main <- p_4x4 +
   theme(
     panel.spacing.x = unit(1.2, "lines"),
     panel.background = element_rect(fill = "white"),
     plot.background = element_rect(fill = "white")
   )
+paleoclim_plot_main
+
+ggsave('')
 
 # add squares separating panels
-p_4x4 +
-  theme(
-    panel.spacing.x = unit(0.8, "lines"),
-    panel.background = element_rect(fill = "white"),
-    plot.background = element_rect(fill = "white"),
-    strip.background = element_rect(fill = "grey92"),
-    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.6)
-  )
+#p_4x4 +
+#  theme(
+#    panel.spacing.x = unit(0.8, "lines"),
+#    panel.background = element_rect(fill = "white"),
+#    plot.background = element_rect(fill = "white"),
+#    strip.background = element_rect(fill = "grey92"),
+#    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.6)
+#  )
 
-p_4x4 +
-  theme(
-    panel.spacing.x = unit(1.2, "lines"),
-    
-    # strips: the titles of rows and columns (y = variables, x = taxa)
-    strip.background.x = element_rect(fill = "white", color = 'white'),
-    strip.background.y = element_rect(fill = "white", color = 'white'),
-    strip.text = element_text(face = "bold"),
-    
-    panel.background = element_rect(fill = "white")
-  )
+#p_4x4 +
+#  theme(
+#    panel.spacing.x = unit(1.2, "lines"),
+#    
+#    # strips: the titles of rows and columns (y = variables, x = taxa)
+#    strip.background.x = element_rect(fill = "white", color = 'white'),
+#    strip.background.y = element_rect(fill = "white", color = 'white'),
+#    strip.text = element_text(face = "bold"),
+#    
+#    panel.background = element_rect(fill = "white")
+#  )
 
 
 plot_one_variable <- function(varname){
@@ -409,7 +434,7 @@ climate_violin_plots <- setNames(
 )
 
 # Example
-climate_violin_plots$paleotemp_sd
+climate_violin_plots$paleotemp_cumchange
 wrap_plots(climate_violin_plots, nrow = 4)
 ggsave('plots/paleoclimate_violin.pdf', wrap_plots(paleoclimate_violin_plots, ncol = 2), 
        height = 20, width = 12)
@@ -589,7 +614,7 @@ for (t in taxa){
 paleoclimate_netchange_plot <- unlist(paleoclimate_netchange_plot, recursive = FALSE)
 wrap_plots(paleoclimate_netchange_plot, ncol = 2)
 
-## > Paleoclimate net change ----
+## > Paleoclimate cumulative change ----
 paleoclimate_cumchange_plot <- setNames(vector('list', length(taxa)), taxa)
 for (t in taxa){
   paleoclimate_cumchange_plot[[t]] <- setNames(vector('list', length = 2), 
