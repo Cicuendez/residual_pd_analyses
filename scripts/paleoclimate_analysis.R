@@ -302,7 +302,8 @@ taxa_labels <- c(
   "squamates" = "Squamates"
 )
 
-pd <- position_dodge(width = 0.85)
+# separation in cases of regions with both factors
+pd <- position_dodge(width = 0.85) # when one region contains cradle and museum
 
 # shade first and third columns of the plots (taxa separation)
 shade_df <- data.frame(
@@ -494,10 +495,219 @@ df_long <- df_long %>%
     )
   )
 
+var_labels <- c(
+  "tempseas" = "T. seasonality",
+  "precseas" = "P. seasonality",
+  "npp" = "NPP",
+  "tri_current" = "TRI"
+)
+
+taxa_labels <- c(
+  "amphibians" = "Amphibians",
+  "birds" = "Birds",
+  "mammals" = "Mammals",
+  "squamates" = "Squamates"
+)
+
+# separation in cases of regions with both factors
+pd <- position_dodge(width = 0.85) # when one region contains cradle and museum
+
+# shade first and third columns of the plots (taxa separation)
+shade_df <- data.frame(
+  group = levels(df_long$group)[c(1, 3)]
+)
+
+# main plot
+p_4x4_supp_current <- df_long %>%
+  filter(variable %in% clim_vars_supp_current) %>%
+  filter(is.finite(value)) %>%
+  ggplot(aes(x = geo, y = value, fill = type)) +
+  
+  # background for columns
+  geom_rect(
+    data = shade_df,
+    aes(xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf),
+    inherit.aes = FALSE,
+    fill = "#F7F7F7"
+  ) +
+  
+  geom_hline(yintercept = 0, linetype = "dashed", linewidth = 0.4, color = "gray60") +
+  
+  geom_violin(trim = TRUE, scale = "width", position = pd, color = NA, alpha = 0.7) +
+  
+  geom_boxplot(width = 0.15, position = pd, 
+               outlier.shape = 16, outlier.size = 0.8, 
+               outlier.stroke = 0, alpha = 0.9, 
+               color = 'black', 
+               linewidth = 0.2) +
+  
+  scale_fill_manual(values = c(cradle = col_cradle, museum = col_museum)) +
+  
+  facet_grid(variable ~ group, scales = "free", 
+             labeller = labeller(variable = var_labels, 
+                                 group = taxa_labels)) +   # 4 taxa (rows) × 4 variables (columns)
+  
+  labs(x = NULL, y = NULL) +
+  
+  theme_classic() +
+  theme(
+    legend.position = "none",
+    strip.text = element_text(face = "bold"), # text in the panel boxes
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.ticks.x = element_blank(), 
+    
+    #strip.background.x = element_rect(fill = "#EAEAEA", color = NA),
+    #strip.background.y = element_rect(fill = "#F5F5F5", color = NA)
+    
+    #strip.background = element_blank()
+    
+    strip.background.x = element_rect(
+      fill = "grey90",
+      color = "black",
+      linewidth = 0.2
+    ),
+    
+    strip.background.y = element_rect(
+      fill = "grey90",
+      color = "black",
+      linewidth = 0.2
+    )
+  )
+
+# add some more space between taxa panels
+paleoclim_plot_supp_current <- p_4x4_supp_current +
+  theme(
+    panel.spacing.x = unit(1.2, "lines"),
+    panel.background = element_rect(fill = "white"),
+    plot.background = element_rect(fill = "white")
+  )
+paleoclim_plot_supp_current
+
+ggsave('plots/paleoclim_violin_supp_current.pdf', paleoclim_plot_supp_current)
+
 
 ## >> Paleo variables ----
 clim_vars_supp_paleo <- c('paleotemp_sd', 'paleoprec_sd', 'paleotemp_netchange', 'paleoprec_netchange', 
                           'paleotemp_slope', 'paleoprec_slope')
+
+df_long <- bind_rows(lapply(names(hexgrid_per_region_combined), function(g) {
+  hexgrid_per_region_combined[[g]] %>%
+    mutate(group = g)
+})) %>%
+  select(group, geo, type, all_of(clim_vars_supp_paleo)) %>%
+  pivot_longer(cols = all_of(clim_vars_supp_paleo),
+               names_to = "variable",
+               values_to = "value") %>%
+  filter(is.finite(value)) %>%
+  mutate(
+    group = factor(group,
+                   levels = c("amphibians","birds","mammals","squamates")),
+    type = factor(type,
+                  levels = c("cradle","museum"))
+  )
+
+df_long <- df_long %>%
+  mutate(
+    geo = recode(geo, !!!geo_labels), 
+    variable = factor(
+      variable,
+      levels = clim_vars_supp_paleo
+    )
+  )
+
+var_labels <- c(
+  "paleotemp_sd" = "Temp. SD",
+  "paleoprec_sd" = "Prec. SD",
+  "paleotemp_netchange" = "T. net change",
+  "paleoprec_netchange" = "P. net change", 
+  "paleotemp_slope" = "Temp. slope", 
+  "paleoprec_slope" = "Prec. slope"
+)
+
+taxa_labels <- c(
+  "amphibians" = "Amphibians",
+  "birds" = "Birds",
+  "mammals" = "Mammals",
+  "squamates" = "Squamates"
+)
+
+# separation in cases of regions with both factors
+pd <- position_dodge(width = 0.85) # when one region contains cradle and museum
+
+# shade first and third columns of the plots (taxa separation)
+shade_df <- data.frame(
+  group = levels(df_long$group)[c(1, 3)]
+)
+
+# main plot
+p_4x4_supp_paleo <- df_long %>%
+  filter(variable %in% clim_vars_supp_paleo) %>%
+  filter(is.finite(value)) %>%
+  ggplot(aes(x = geo, y = value, fill = type)) +
+  
+  # background for columns
+  geom_rect(
+    data = shade_df,
+    aes(xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf),
+    inherit.aes = FALSE,
+    fill = "#F7F7F7"
+  ) +
+  
+  geom_hline(yintercept = 0, linetype = "dashed", linewidth = 0.4, color = "gray60") +
+  
+  geom_violin(trim = TRUE, scale = "width", position = pd, color = NA, alpha = 0.7) +
+  
+  geom_boxplot(width = 0.15, position = pd, 
+               outlier.shape = 16, outlier.size = 0.8, 
+               outlier.stroke = 0, alpha = 0.9, 
+               color = 'black', 
+               linewidth = 0.2) +
+  
+  scale_fill_manual(values = c(cradle = col_cradle, museum = col_museum)) +
+  
+  facet_grid(variable ~ group, scales = "free", 
+             labeller = labeller(variable = var_labels, 
+                                 group = taxa_labels)) +   # 4 taxa (rows) × 4 variables (columns)
+  
+  labs(x = NULL, y = NULL) +
+  
+  theme_classic() +
+  theme(
+    legend.position = "none",
+    strip.text = element_text(face = "bold"), # text in the panel boxes
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.ticks.x = element_blank(), 
+    
+    #strip.background.x = element_rect(fill = "#EAEAEA", color = NA),
+    #strip.background.y = element_rect(fill = "#F5F5F5", color = NA)
+    
+    #strip.background = element_blank()
+    
+    strip.background.x = element_rect(
+      fill = "grey90",
+      color = "black",
+      linewidth = 0.2
+    ),
+    
+    strip.background.y = element_rect(
+      fill = "grey90",
+      color = "black",
+      linewidth = 0.2
+    )
+  )
+
+# add some more space between taxa panels
+paleoclim_plot_supp_paleo <- p_4x4_supp_paleo +
+  theme(
+    panel.spacing.x = unit(1.2, "lines"),
+    panel.spacing.y = unit(1.2, "lines"),
+    panel.background = element_rect(fill = "white"),
+    plot.background = element_rect(fill = "white")
+  )
+paleoclim_plot_supp_paleo
+
+ggsave('plots/paleoclim_violin_supp_paleo.pdf', paleoclim_plot_supp_paleo, 
+       width = 7, height = 10)
 
 
 
