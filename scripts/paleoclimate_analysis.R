@@ -238,7 +238,8 @@ for (t in taxa){
 col_cradle <- '#2F6BA8' # blue
 col_museum <- '#A72E37' # red
 
-paleoclim_vars <- colnames(hexgrid_list[[t]])[grep('paleo', colnames(hexgrid_list[[t]]))]
+# > Violin main plot ----
+#paleoclim_vars <- colnames(hexgrid_list[[t]])[grep('paleo', colnames(hexgrid_list[[t]]))]
 
 # let's take the main variables used for the main text: 
 # - present temperature and present precipitation; 
@@ -263,7 +264,7 @@ df_long <- bind_rows(lapply(names(hexgrid_per_region_combined), function(g) {
                   levels = c("cradle","museum"))
   )
 
-# new lables
+# new labels
 geo_labels <- c(
   "africa_madagascar" = "Africa - Madag.",
   "south_america" = "S America",
@@ -282,7 +283,7 @@ df_long <- df_long %>%
     geo = recode(geo, !!!geo_labels), 
     variable = factor(
       variable,
-      levels = c("temp", "prec", "paleotemp_cumchange", "paleoprec_cumchange")
+      levels = clim_vars
       )
     )
 
@@ -308,7 +309,8 @@ shade_df <- data.frame(
   group = levels(df_long$group)[c(1, 3)]
 )
 
-p_4x4 <- df_long %>%
+# main plot
+p_4x4_main <- df_long %>%
   filter(variable %in% clim_vars) %>%
   filter(is.finite(value)) %>%
   ggplot(aes(x = geo, y = value, fill = type)) +
@@ -367,14 +369,13 @@ p_4x4 <- df_long %>%
 #p_4x4
 
 # add some more space between taxa panels
-paleoclim_plot_main <- p_4x4 +
+paleoclim_plot_main <- p_4x4_main +
   theme(
     panel.spacing.x = unit(1.2, "lines"),
     panel.background = element_rect(fill = "white"),
     plot.background = element_rect(fill = "white")
   )
 paleoclim_plot_main
-
 
 ggsave('plots/paleoclim_violin_main.pdf', paleoclim_plot_main)
 
@@ -401,70 +402,109 @@ ggsave('plots/paleoclim_violin_main.pdf', paleoclim_plot_main)
 #  )
 
 
-plot_one_variable <- function(varname){
-  
-  pd <- position_dodge(width = 0.85)
-  
-  df_plot <- df_long %>%
-    filter(variable == varname) %>%
-    group_by(group, geo) %>%
-    mutate(med = median(value, na.rm = TRUE)) %>%
-    ungroup()
-    #mutate(geo_group = reorder_within(geo, med, group)) # sort by median
-    
+#plot_one_variable <- function(varname){
+#  
+#  pd <- position_dodge(width = 0.85)
+#  
+#  df_plot <- df_long %>%
+#    filter(variable == varname) %>%
+#    group_by(group, geo) %>%
+#    mutate(med = median(value, na.rm = TRUE)) %>%
+#    ungroup()
+#    #mutate(geo_group = reorder_within(geo, med, group)) # sort by median
+#    
+#
+#  ggplot(df_plot,
+#         aes(x = geo, y = value, fill = type)) +
+#    
+#    geom_hline(yintercept = 0,
+#               linetype = "dashed",
+#               linewidth = 0.4,
+#               color = "gray60") +
+#    
+#    geom_violin(trim = TRUE,
+#                scale = "width",
+#                position = pd,
+#                color = NA) +
+#    
+#    scale_fill_manual(values = c(
+#      cradle = col_cradle,
+#      museum = col_museum
+#    )) +
+#    
+#    #scale_x_reordered() +
+#    
+#    facet_wrap(~ group,
+#               ncol = 2,
+#               scales = "free_x") +
+#    
+#    labs(title = varname,
+#         x = NULL,
+#         y = NULL) +
+#    
+#    theme_classic() +
+#    theme(
+#      legend.position = "none",
+#      strip.text = element_text(face = "bold"),
+#      axis.text.x = element_text(angle = 45,
+#                                 hjust = 1),
+#      axis.ticks.x = element_blank()
+#    )
+#}
+#
+#
+#climate_violin_plots <- setNames(
+#  lapply(clim_vars, plot_one_variable),
+#  clim_vars
+#)
+#
+## Example
+#climate_violin_plots$paleotemp_cumchange
+#wrap_plots(climate_violin_plots, nrow = 4)
+#ggsave('plots/paleoclimate_violin.pdf', wrap_plots(paleoclimate_violin_plots, ncol = 2), 
+#       height = 20, width = 12)
+#
 
-  ggplot(df_plot,
-         aes(x = geo, y = value, fill = type)) +
-    
-    geom_hline(yintercept = 0,
-               linetype = "dashed",
-               linewidth = 0.4,
-               color = "gray60") +
-    
-    geom_violin(trim = TRUE,
-                scale = "width",
-                position = pd,
-                color = NA) +
-    
-    scale_fill_manual(values = c(
-      cradle = col_cradle,
-      museum = col_museum
-    )) +
-    
-    #scale_x_reordered() +
-    
-    facet_wrap(~ group,
-               ncol = 2,
-               scales = "free_x") +
-    
-    labs(title = varname,
-         x = NULL,
-         y = NULL) +
-    
-    theme_classic() +
-    theme(
-      legend.position = "none",
-      strip.text = element_text(face = "bold"),
-      axis.text.x = element_text(angle = 45,
-                                 hjust = 1),
-      axis.ticks.x = element_blank()
+# > Violin supp plot ----
+## >> Current variables ----
+clim_vars_supp_current <- c('tempseas', 'precseas', 'npp', 'tri_current')
+
+df_long <- bind_rows(lapply(names(hexgrid_per_region_combined), function(g) {
+  hexgrid_per_region_combined[[g]] %>%
+    mutate(group = g)
+})) %>%
+  select(group, geo, type, all_of(clim_vars_supp_current)) %>%
+  pivot_longer(cols = all_of(clim_vars_supp_current),
+               names_to = "variable",
+               values_to = "value") %>%
+  filter(is.finite(value)) %>%
+  mutate(
+    group = factor(group,
+                   levels = c("amphibians","birds","mammals","squamates")),
+    type = factor(type,
+                  levels = c("cradle","museum"))
+  )
+
+df_long <- df_long %>%
+  mutate(
+    geo = recode(geo, !!!geo_labels), 
+    variable = factor(
+      variable,
+      levels = clim_vars_supp_current
     )
-}
+  )
 
 
-climate_violin_plots <- setNames(
-  lapply(clim_vars, plot_one_variable),
-  clim_vars
-)
-
-# Example
-climate_violin_plots$paleotemp_cumchange
-wrap_plots(climate_violin_plots, nrow = 4)
-ggsave('plots/paleoclimate_violin.pdf', wrap_plots(paleoclimate_violin_plots, ncol = 2), 
-       height = 20, width = 12)
+## >> Paleo variables ----
+clim_vars_supp_paleo <- c('paleotemp_sd', 'paleoprec_sd', 'paleotemp_netchange', 'paleoprec_netchange', 
+                          'paleotemp_slope', 'paleoprec_slope')
 
 
-# PALECLIMATE REGION MAPS ----
+
+
+
+
+# PALEOCLIMATE REGION MAPS ----
 
 world <- rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")
 proj_hexgrid <- crs(hexgrid_list[[1]])
