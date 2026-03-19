@@ -329,7 +329,7 @@ p_4x4_main <- df_long %>%
   geom_violin(trim = TRUE, scale = "width", position = pd, color = NA, alpha = 0.7) +
   
   geom_boxplot(width = 0.15, position = pd, 
-               outlier.shape = 16, outlier.size = 0.8, 
+               outlier.shape = 16, outlier.size = 0.7, 
                outlier.stroke = 0, alpha = 0.9, 
                color = 'black', 
                linewidth = 0.2) +
@@ -738,7 +738,9 @@ ggsave('plots/paleoclim_violin_supp_paleo.pdf', paleoclim_plot_supp_paleo,
 # museums in the violin plots. So we can compare the results of the tests using 
 # the 'type' column (cradles vs. museums) with the results of the tests using 
 # the 'geo' column (the specific regions: North America, SE Asia, Africa, 
-# Australia, etc.; these are specific for each taxa group).
+# Australia, etc.; these are specific for each taxa group). These will likely 
+# show a stronger effect of the geographic context than the cradle-museum 
+# category.
 # 
 # For the paleoclimate: 
 # - cumulative change and standard deviation are very 
@@ -755,33 +757,133 @@ hexgrid_per_region_combined # this is the data list
 vars.current <- c("temp", "prec", "tempseas", "precseas", "npp", "tri_current")
 var.paleo <- c("paleotemp_cumchange", "paleoprec_cumchange", "paleotemp_slope", "paleoprec_slope")
 
+## empty results table
+results_manova <- data.frame(
+  taxon = character(),
+  block = character(),     # "current" or "paleo"
+  effect = character(),    # "type" or "geo"
+  pillai = numeric(),
+  approx_F = numeric(),
+  num_df = numeric(),
+  den_df = numeric(),
+  p = numeric(),
+  stringsAsFactors = FALSE
+)
+
+results_anova <- data.frame(
+  taxon = character(),
+  variable = character(),
+  effect = character(),    # "type" or "geo"
+  ss_effect = numeric(), 
+  ss_resid = numeric(),
+  df1 = numeric(),
+  df2 = numeric(),
+  F.stat = numeric(),
+  p = numeric(),
+  eta2 = numeric(),
+  stringsAsFactors = FALSE
+)
+
 for (t in taxa){
   
   dat.test <- as.data.frame(hexgrid_per_region_combined[[t]] %>% 
     select(all_of(c(vars.current, 'type', 'geo', 'group'))))
   
+  ## current ----
   Y_current <- scale(log(dat.test[, vars.current]))
   
+  ### MANOVA current - type ----
   manova.current.type <- manova(Y_current ~ type, data = dat.test)
   manova.current.type$coefficients
-  summary(manova.current.type, test = 'Pillai')
+  manova.current.type$coefficients
+  sum.manova.current.type <- summary(manova.current.type, test = 'Pillai')
+  sum.manova.current.type$stats
   # Pillai's trace ranges from 0 to 1 (with 1 degree of freedom). 
   # Higher Pillai's trace values indicate 
   # stronger evidence that the explanatory variable (type; cradle vs museum) 
   # has an effect on the response variables (climate). In other words in this case, 
   # higher Pillai's traces show larger climatic differences between high resPD
-  # regions and low resPD regions. This can be seen as the effect size.
+  # regions and low resPD regions.
+
+  results_manova <- rbind(
+    results_manova,
+    data.frame(
+      taxon = t, 
+      block = 'current', 
+      effect = "type",
+      pillai = sum.manova.current.type$stats[1, "Pillai"],
+      approx_F = sum.manova.current.type$stats[1, "approx F"],
+      num_df = sum.manova.current.type$stats[1, "num Df"],
+      den_df = sum.manova.current.type$stats[1, "den Df"],
+      p = sum.manova.current.type$stats[1, "Pr(>F)"],
+      stringsAsFactors = FALSE
+      )
+    )
   
-  manova.current.geo <- manova(Y_current ~ geo, data = dat.test)
-  summary(manova.current.geo, test = 'Pillai')
+  ### ANOVAs current - type ----
+  
+  aov.current.type <- summary.aov(manova.current.type)
+  names(aov.current.type) <- vars.current
+  aov.current.type$temp
+  
+  for (v in vars.current) {
+    
+    tab <- aov.current.type[[v]]
+    
+    ss_effect <- tab$`Sum Sq`[1]
+    ss_resid  <- tab$`Sum Sq`[2]
+    eta2 <- ss_effect / (ss_effect + ss_resid)
+    
+    df1 <- tab$Df[1]
+    df2 <- tab$Df[2]
+    F.stat <- tab$`F value`[1]
+    pval <- tab$`Pr(>F)`[1]
+    
+    # save to table
+    results_anova <- rbind(
+      results_anova, 
+      data.frame(
+        taxon = t,
+        variable = v,
+        effect = 'type',    # "type" or "geo"
+        ss_effect = ss_effect, 
+        ss_resid = ss_resid, 
+        df1 = df1,
+        df2 = df2,
+        F.stat = F.stat,
+        p = pval,
+        eta2 = eta2,
+        stringsAsFactors = FALSE
+      )
+    )
+  }
+  
+  ### MANOVA current - geo ----
+  
+
+  ### ANOVA current - geo ----
+
+  
+  ## paleo ----
+  
+  ### MANOVA paleo - type ----
   
   
   
-  sum.aov.current.type <- summary.aov(manova.current.type)
-  sum.aov.current.type
   
   
-  manova.paleo
+  ### ANOVAs paleo - type ----
+  
+  
+  
+  
+  ### MANOVA paleo - geo ----
+  
+  
+  
+  
+  
+  ### ANOVAs paleo - geo ----
   
   
   
