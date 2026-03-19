@@ -1057,9 +1057,28 @@ for (t in taxa){
 }
 
 results_manova
+# Climatic conditions differed significantly between cradle and museum regions across all taxa (Pillai’s trace = 0.08–0.43, p < 0.001). However, geographic variation among regions explained substantially more variation in environmental conditions (Pillai’s trace = 0.45–1.68, p < 0.001).
+
 results_anova
+# Univariate analyses showed that the effect of cradle versus museum classification was generally small (η² < 0.15 in most cases), whereas geographic differences explained a much larger proportion of variance across all variables (η² up to 0.58).
 
 hexgrid_per_region_combined
+
+aggregate(eta2 ~ taxon + effect, data = results_anova, mean)
+
+#  | taxon      | type (η²) | geo (η²) | ratio |
+#  | ---------- | --------- | -------- | ----- |
+#  | amphibians | 0.02      | 0.19     | ~9×   |
+#  | birds      | 0.11      | 0.31     | ~3×   |
+#  | mammals    | 0.06      | 0.24     | ~4×   |
+#  | squamates  | 0.09      | 0.35     | ~4×   |
+  
+# Climatic differences between cradle and museum regions are not driven by a consistent global environmental signature, but instead largely reflect the geographic context of the regions involved.
+
+# Although climatic differences between cradle and museum regions were statistically significant, effect sizes were consistently small to moderate (mean η² = 0.02–0.11 across taxa). In contrast, geographic variation explained substantially more variance in environmental conditions (mean η² = 0.19–0.35), corresponding to a 3- to 9-fold increase in explanatory power relative to cradle–museum classification.
+
+# While cradle and museum regions differ climatically, these differences are weak and inconsistent compared to the dominant effect of geographic context.
+
 
 dat.test <- hexgrid_per_region_combined[[t]]
 
