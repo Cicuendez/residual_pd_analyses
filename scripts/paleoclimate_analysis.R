@@ -1080,53 +1080,6 @@ aggregate(eta2 ~ taxon + effect, data = results_anova, mean)
 # While cradle and museum regions differ climatically, these differences are weak and inconsistent compared to the dominant effect of geographic context.
 
 
-dat.test <- hexgrid_per_region_combined[[t]]
-
-Y_current <- scale(dat.test[, c("temp", "prec", "tempseas", "precseas", "npp", "tri_current")])
-mod_current.type <- manova(Y_current ~ type, data = dat.test)
-mod_current.geo <- manova(Y_current ~ geo, data = dat.test)
-summary(mod_current.type, test = "Pillai")
-summary.aov(mod_current.type)
-
-summary(mod_current.geo,  test = "Pillai")
-summary.aov(mod_current.geo)
-
-# Multivariate analyses revealed significant differences in climatic conditions between regions classified as cradles and museums (Pillai’s trace = 0.34, p < 0.001). However, geographic variation among regions explained substantially more variation in climate (Pillai’s trace = 1.93, p < 0.001), with effect sizes consistently higher across all variables. This indicates that climatic differences between cradles and museums largely reflect underlying regional environmental differences rather than a consistent climatic signature associated with cradle or museum dynamics.
-
-library(RRPP)
-Y_paleo <- scale(dat.test[, c("paleotemp_cumchange", "paleoprec_cumchange")])
-mod_paleo.type <- manova(Y_paleo ~ type, data = dat.test)
-mod_paleo.geo <- manova(Y_paleo ~ geo, data = dat.test)
-
-mod_paleo.type_rrpp <- lm.rrpp(Y_paleo ~ type, data = dat.test, iter = 2000)
-summary.manova.rrpp_paleo <- summary(mod_paleo.type_rrpp)
-summary.manova.rrpp_paleo$table
-
-hist(dat.test$paleotemp_cumchange)
-hist(log(dat.test$paleotemp_cumchange))
-
-mod_paleotemp_cumchange_rrpp <- lm.rrpp(paleotemp_cumchange ~ type, data = dat.test)
-anova_paleotemp_cumchange_rrpp <- anova.lm.rrpp(mod_paleotemp_cumchange_rrpp)
-
-
-summary(mod_paleotemp_cumchange_rrpp)
-
-summary(mod_paleo.type, test = "Pillai")
-summary.aov(mod_paleo.type)
-
-summary(mod_paleo.geo,  test = "Pillai")
-summary.aov(mod_paleo.geo)
-
-# Multivariate analyses of paleoclimatic variables also revealed significant differences between cradle and museum regions (Pillai’s trace = 0.17, p < 0.001), although effect sizes were notably smaller than for current climatic conditions. Univariate analyses showed that these differences were driven primarily by cumulative changes in precipitation, whereas temperature change did not differ between cradles and museums. In contrast, geographic variation among regions remained consistently strong (Pillai’s trace = 0.51, p < 0.001), with all paleoclimatic variables showing significant differences among regions. Together, these results indicate that climatic differences between cradles and museums are variable and dependent on specific variables and time periods, whereas geographic structure is consistently dominant.
-
-
-
-
-
-
-
-
-
 # PALEOCLIMATE REGION MAPS ----
 
 world <- rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")
