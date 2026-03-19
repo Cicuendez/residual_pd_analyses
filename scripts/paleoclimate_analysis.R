@@ -755,7 +755,7 @@ ggsave('plots/paleoclim_violin_supp_paleo.pdf', paleoclim_plot_supp_paleo,
 hexgrid_per_region_combined # this is the data list
 
 vars.current <- c("temp", "prec", "tempseas", "precseas", "npp", "tri_current")
-var.paleo <- c("paleotemp_cumchange", "paleoprec_cumchange", "paleotemp_slope", "paleoprec_slope")
+vars.paleo <- c("paleotemp_cumchange", "paleoprec_cumchange", "paleotemp_slope", "paleoprec_slope")
 
 ## empty results table
 results_manova <- data.frame(
@@ -787,7 +787,7 @@ results_anova <- data.frame(
 for (t in taxa){
   
   dat.test <- as.data.frame(hexgrid_per_region_combined[[t]] %>% 
-    select(all_of(c(vars.current, 'type', 'geo', 'group'))))
+                              select(all_of(c(vars.current, vars.paleo, 'type', 'geo', 'group'))))
   
   ## current ----
   Y_current <- scale(log(dat.test[, vars.current]))
@@ -804,7 +804,7 @@ for (t in taxa){
   # has an effect on the response variables (climate). In other words in this case, 
   # higher Pillai's traces show larger climatic differences between high resPD
   # regions and low resPD regions.
-
+  
   results_manova <- rbind(
     results_manova,
     data.frame(
@@ -817,8 +817,8 @@ for (t in taxa){
       den_df = sum.manova.current.type$stats[1, "den Df"],
       p = sum.manova.current.type$stats[1, "Pr(>F)"],
       stringsAsFactors = FALSE
-      )
     )
+  )
   
   ### ANOVAs current - type ----
   
@@ -860,36 +860,204 @@ for (t in taxa){
   
   ### MANOVA current - geo ----
   
-
+  manova.current.geo <- manova(Y_current ~ geo, data = dat.test)
+  manova.current.geo$coefficients
+  sum.manova.current.geo <- summary(manova.current.geo, test = 'Pillai')
+  sum.manova.current.geo$stats
+  
+  results_manova <- rbind(
+    results_manova,
+    data.frame(
+      taxon = t, 
+      block = 'current', 
+      effect = "geo",
+      pillai = sum.manova.current.geo$stats[1, "Pillai"],
+      approx_F = sum.manova.current.geo$stats[1, "approx F"],
+      num_df = sum.manova.current.geo$stats[1, "num Df"],
+      den_df = sum.manova.current.geo$stats[1, "den Df"],
+      p = sum.manova.current.geo$stats[1, "Pr(>F)"],
+      stringsAsFactors = FALSE
+    )
+  )
+  
   ### ANOVA current - geo ----
-
+  
+  aov.current.geo <- summary.aov(manova.current.geo)
+  names(aov.current.geo) <- vars.current
+  aov.current.geo$temp
+  
+  for (v in vars.current) {
+    
+    tab <- aov.current.geo[[v]]
+    
+    ss_effect <- tab$`Sum Sq`[1]
+    ss_resid  <- tab$`Sum Sq`[2]
+    eta2 <- ss_effect / (ss_effect + ss_resid)
+    
+    df1 <- tab$Df[1]
+    df2 <- tab$Df[2]
+    F.stat <- tab$`F value`[1]
+    pval <- tab$`Pr(>F)`[1]
+    
+    # save to table
+    results_anova <- rbind(
+      results_anova, 
+      data.frame(
+        taxon = t,
+        variable = v,
+        effect = 'geo',
+        ss_effect = ss_effect, 
+        ss_resid = ss_resid, 
+        df1 = df1,
+        df2 = df2,
+        F.stat = F.stat,
+        p = pval,
+        eta2 = eta2,
+        stringsAsFactors = FALSE
+      )
+    )
+  }
+  
   
   ## paleo ----
   
+  # since slopes have negative values, don't apply the log for them
+  Y_paleo <- cbind(
+    scale(log(dat.test[, vars.paleo[1:2]])), 
+    scale(dat.test[, vars.paleo[3:4]])
+  )
+  
   ### MANOVA paleo - type ----
   
+  manova.paleo.type <- manova(Y_paleo ~ type, data = dat.test)
+  manova.paleo.type$coefficients
+  sum.manova.paleo.type <- summary(manova.paleo.type, test = 'Pillai')
+  sum.manova.paleo.type$stats
   
+  results_manova <- rbind(
+    results_manova,
+    data.frame(
+      taxon = t, 
+      block = 'paleo', 
+      effect = "type",
+      pillai = sum.manova.paleo.type$stats[1, "Pillai"],
+      approx_F = sum.manova.paleo.type$stats[1, "approx F"],
+      num_df = sum.manova.paleo.type$stats[1, "num Df"],
+      den_df = sum.manova.paleo.type$stats[1, "den Df"],
+      p = sum.manova.paleo.type$stats[1, "Pr(>F)"],
+      stringsAsFactors = FALSE
+    )
+  )
   
   
   
   ### ANOVAs paleo - type ----
   
+  aov.paleo.type <- summary.aov(manova.paleo.type)
+  names(aov.paleo.type) <- vars.paleo
+  aov.paleo.type$paleotemp_cumchange
+  
+  for (v in vars.paleo) {
+    
+    tab <- aov.paleo.type[[v]]
+    
+    ss_effect <- tab$`Sum Sq`[1]
+    ss_resid  <- tab$`Sum Sq`[2]
+    eta2 <- ss_effect / (ss_effect + ss_resid)
+    
+    df1 <- tab$Df[1]
+    df2 <- tab$Df[2]
+    F.stat <- tab$`F value`[1]
+    pval <- tab$`Pr(>F)`[1]
+    
+    # save to table
+    results_anova <- rbind(
+      results_anova, 
+      data.frame(
+        taxon = t,
+        variable = v,
+        effect = 'type',
+        ss_effect = ss_effect, 
+        ss_resid = ss_resid, 
+        df1 = df1,
+        df2 = df2,
+        F.stat = F.stat,
+        p = pval,
+        eta2 = eta2,
+        stringsAsFactors = FALSE
+      )
+    )
+  }
   
   
   
   ### MANOVA paleo - geo ----
   
+  manova.paleo.geo <- manova(Y_paleo ~ geo, data = dat.test)
+  manova.paleo.geo$coefficients
+  sum.manova.paleo.geo <- summary(manova.paleo.geo, test = 'Pillai')
+  sum.manova.paleo.geo$stats
   
+  results_manova <- rbind(
+    results_manova,
+    data.frame(
+      taxon = t, 
+      block = 'paleo', 
+      effect = "geo",
+      pillai = sum.manova.paleo.geo$stats[1, "Pillai"],
+      approx_F = sum.manova.paleo.geo$stats[1, "approx F"],
+      num_df = sum.manova.paleo.geo$stats[1, "num Df"],
+      den_df = sum.manova.paleo.geo$stats[1, "den Df"],
+      p = sum.manova.paleo.geo$stats[1, "Pr(>F)"],
+      stringsAsFactors = FALSE
+    )
+  )
   
   
   
   ### ANOVAs paleo - geo ----
   
+  aov.paleo.geo <- summary.aov(manova.paleo.geo)
+  names(aov.paleo.geo) <- vars.paleo
+  aov.paleo.geo$paleotemp_cumchange
+  
+  for (v in vars.paleo) {
+    
+    tab <- aov.paleo.geo[[v]]
+    
+    ss_effect <- tab$`Sum Sq`[1]
+    ss_resid  <- tab$`Sum Sq`[2]
+    eta2 <- ss_effect / (ss_effect + ss_resid)
+    
+    df1 <- tab$Df[1]
+    df2 <- tab$Df[2]
+    F.stat <- tab$`F value`[1]
+    pval <- tab$`Pr(>F)`[1]
+    
+    # save to table
+    results_anova <- rbind(
+      results_anova, 
+      data.frame(
+        taxon = t,
+        variable = v,
+        effect = 'geo',
+        ss_effect = ss_effect, 
+        ss_resid = ss_resid, 
+        df1 = df1,
+        df2 = df2,
+        F.stat = F.stat,
+        p = pval,
+        eta2 = eta2,
+        stringsAsFactors = FALSE
+      )
+    )
+  }
   
   
 }
 
-
+results_manova
+results_anova
 
 hexgrid_per_region_combined
 
