@@ -724,8 +724,68 @@ ggsave('plots/paleoclim_violin_supp_paleo.pdf', paleoclim_plot_supp_paleo,
 #     A   A   N   N   A   A   LLLLL   Y      SSS    IIIII   SSS
 
 # ANALYSIS ----
-hexgrid_per_region_combined
+# rationale: 
+# The working hypothesis (H1) here is that regions of low resPD ("cradles") and 
+# regions of high resPD ("museums") differ climatically / environmentally. 
+# We have current variables and paleo variables (temperature and precipitation 
+# change during the past 5 million years), so we will treat them 
+# separately. Therefore the hypotheses we test are: 
+# 1. There are differences in current environment between cradles and museums. 
+# 2. There are differences in climatic change in the last 5 million years. 
+# 
+# With our dataset and the big number of grid cells, the test will likely be 
+# significant even if we don't see a clear difference between cradles and 
+# museums in the violin plots. So we can compare the results of the tests using 
+# the 'type' column (cradles vs. museums) with the results of the tests using 
+# the 'geo' column (the specific regions: North America, SE Asia, Africa, 
+# Australia, etc.; these are specific for each taxa group).
+# 
+# For the paleoclimate: 
+# - cumulative change and standard deviation are very 
+# similar, so we only use cumulative change. 
+# - net change is not really informative because it can hide great change 
+# with a net of zero. So we do not use net change in the analysis. 
+# - we use slope as a proxy for the general climate trend. It is kind of similar 
+# to cumulative change in the violin plot patterns, but since it may show a 
+# different thing (trend insted of specific amount of change) we use it. 
 
+
+hexgrid_per_region_combined # this is the data list
+
+vars.current <- c("temp", "prec", "tempseas", "precseas", "npp", "tri_current")
+var.paleo <- c("paleotemp_cumchange", "paleoprec_cumchange", "paleotemp_slope", "paleoprec_slope")
+
+for (t in taxa){
+  
+  dat.test <- as.data.frame(hexgrid_per_region_combined[[t]] %>% 
+    select(all_of(c(vars.current, 'type', 'geo', 'group'))))
+  
+  Y_current <- scale(log(dat.test[, vars.current]))
+  
+  manova.current.type <- manova(Y_current ~ type, data = dat.test)
+  manova.current.type$coefficients
+  summary(manova.current.type, test = 'Pillai')
+  # Pillai's trace ranges from 0 to 1 (with 1 degree of freedom). 
+  # Higher Pillai's trace values indicate 
+  # stronger evidence that the explanatory variable (type; cradle vs museum) 
+  # has an effect on the response variables (climate). In other words in this case, 
+  # higher Pillai's traces show larger climatic differences between high resPD
+  # regions and low resPD regions. This can be seen as the effect size.
+  
+  manova.current.geo <- manova(Y_current ~ geo, data = dat.test)
+  summary(manova.current.geo, test = 'Pillai')
+  
+  
+  
+  sum.aov.current.type <- summary.aov(manova.current.type)
+  sum.aov.current.type
+  
+  
+  manova.paleo
+  
+  
+  
+}
 
 
 
