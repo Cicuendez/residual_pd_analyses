@@ -724,7 +724,7 @@ ggsave('plots/paleoclim_violin_supp_paleo.pdf', paleoclim_plot_supp_paleo,
 #     A   A   N   N   A   A   LLLLL   Y      SSS    IIIII   SSS
 
 # ANALYSIS ----
-# rationale: 
+## rationale ----
 # The working hypothesis (H1) here is that regions of low resPD ("cradles") and 
 # regions of high resPD ("museums") differ climatically / environmentally. 
 # We have current variables and paleo variables (temperature and precipitation 
@@ -751,7 +751,7 @@ ggsave('plots/paleoclim_violin_supp_paleo.pdf', paleoclim_plot_supp_paleo,
 # to cumulative change in the violin plot patterns, but since it may show a 
 # different thing (trend insted of specific amount of change) we use it. 
 
-
+## text for Methods ----
 # Statistical analyses
 # To test whether regions of low residual phylogenetic diversity (hereafter cradles) and high residual phylogenetic diversity (museums) differ in their environmental conditions, we performed multivariate and univariate analyses on both present-day and paleoclimatic variables.
 
