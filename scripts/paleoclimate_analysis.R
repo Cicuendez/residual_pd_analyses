@@ -752,6 +752,49 @@ ggsave('plots/paleoclim_violin_supp_paleo.pdf', paleoclim_plot_supp_paleo,
 # different thing (trend insted of specific amount of change) we use it. 
 
 
+# Statistical analyses
+# To test whether regions of low residual phylogenetic diversity (hereafter cradles) and high residual phylogenetic diversity (museums) differ in their environmental conditions, we performed multivariate and univariate analyses on both present-day and paleoclimatic variables.
+
+# Environmental predictors
+# We considered two sets of environmental variables. The current dataset included six variables describing present-day climatic and productivity conditions: mean annual temperature (temp), annual precipitation (prec), temperature seasonality (tempseas), precipitation seasonality (precseas), net primary productivity (npp), and terrain ruggedness index (tri_current).
+
+# The paleoclimatic dataset included four variables describing climatic change over the last 5 million years: cumulative temperature change (paleotemp_cumchange), cumulative precipitation change (paleoprec_cumchange), temperature trend (paleotemp_slope), and precipitation trend (paleoprec_slope).
+
+# All analyses were conducted separately for each major taxonomic group (amphibians, birds, mammals, and squamates).
+
+
+# Data transformation and standardization
+# To improve normality and comparability among variables, we transformed and standardized environmental predictors prior to analysis. For current variables and paleoclimatic cumulative change variables, we applied a log-transformation to reduce skewness and long-tailed distributions. All variables were subsequently standardized to zero mean and unit variance using z-transformation. Paleoclimatic slope variables were standardized but not log-transformed.
+
+# Multivariate analyses (MANOVA)
+
+# We used multivariate analysis of variance (MANOVA) to test whether environmental conditions differed between cradles and museums. For each taxonomic group, we fitted separate MANOVA models for current and paleoclimatic datasets using the following structure:
+  
+# type (cradle vs. museum) as the main explanatory factor
+
+# geo (geographic region) as an alternative explanatory factor
+
+# These two factors were analyzed in separate models to evaluate their relative explanatory power.
+
+# Significance was assessed using Pillai’s trace, which is robust to violations of multivariate normality and heterogeneity of covariance matrices. For each model, we extracted Pillai’s trace, approximate F-statistics, degrees of freedom, and associated p-values.
+
+# Univariate analyses (ANOVA)
+# To identify which environmental variables contributed to multivariate differences, we performed follow-up univariate analyses of variance (ANOVAs) for each variable using the same model structure (type or geo as predictors). These were obtained from the MANOVA objects.
+
+# For each ANOVA, we extracted F-statistics, p-values, and sums of squares for the effect and residuals.
+
+
+# Effect size estimation
+# To quantify the magnitude of effects, we calculated η² (eta squared) for each univariate model as:
+# η2=SSeffect / (SSeffect+SSresidual)
+# We then summarized mean η² values across variables for each taxonomic group and predictor (type vs. geo) to compare their relative explanatory power.
+
+
+
+# Interpretation framework
+# Given the large sample size (number of grid cells), we expected high statistical power and thus emphasized effect sizes (η² and Pillai’s trace) over statistical significance when interpreting results. In particular, we compared the relative magnitude of effects associated with cradle–museum classification (type) and geographic context (geo) to assess whether climatic differences represent a consistent global signal or reflect regional environmental structure.
+
+
 hexgrid_per_region_combined # this is the data list
 
 vars.current <- c("temp", "prec", "tempseas", "precseas", "npp", "tri_current")
